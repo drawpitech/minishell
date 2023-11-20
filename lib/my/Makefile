@@ -30,6 +30,7 @@ SRC += my_strcmp.c
 SRC += my_strcpy.c
 SRC += my_strlen.c
 SRC += my_strstr.c
+SRC += my_strpbrk.c
 SRC += str_identify.c
 SRC += strcases.c
 SRC += str_to_int.c
