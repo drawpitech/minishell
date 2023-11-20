@@ -29,6 +29,7 @@ LDFLAGS := -L./$(dir $(LIBMY)) -lmy
 VPATH := src
 SRC := minishell.c
 SRC += clear.c
+SRC += parser.c
 
 # Tests files
 VPATH += tests
@@ -112,6 +113,7 @@ $(BUILD_DIR)/asan/%.o: %.c $(LIBMY)
 	@ $(CC) -o $@ -c $< $(CFLAGS) $(DEPS_FLAGS) || $(DIE)
 
 $(ASAN_NAME): CFLAGS += -fsanitize=address,leak,undefined -g3
+$(ASAN_NAME): CFLAGS += -D DEBUG_MODE
 $(ASAN_NAME): $(LIBMY) $(ASAN_OBJ)
 	@ $(ECHO) "[${C_BOLD}${C_YELLOW}CC${C_RESET}] ${C_GREEN}$@${C_RESET}"
 	@ $(CC) -o $@ $(ASAN_OBJ) $(CFLAGS) $(LDFLAGS) || $(DIE)

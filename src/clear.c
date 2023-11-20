@@ -14,6 +14,8 @@ void clear_prompt(prompt_t *prompt)
         return;
     if (prompt->line != NULL)
         free(prompt->line);
+    if (prompt->tokens.tok != NULL)
+        free(prompt->tokens.tok);
     *prompt = (prompt_t){ 0 };
 }
 

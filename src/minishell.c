@@ -11,6 +11,7 @@
 
 #include "my.h"
 
+#include "debug.h"
 #include "minishell.h"
 
 static
@@ -31,10 +32,29 @@ int get_prompt(shell_t *shell)
 }
 
 static
+void tokenize(shell_t *shell)
+{
+    prompt_t *prompt = &shell->prompt;
+    token_t tok = { 0 };
+    char *ptr = prompt->line;
+
+    while (parser_next_token(&ptr, &tok) != NULL) {
+        DEBUG("token: [%s]", tok.ptr);
+        prompt->tokens.tok = my_reallocarray(
+            prompt->tokens.tok, prompt->tokens.nbr + 1,
+            prompt->tokens.nbr, sizeof(*prompt->tokens.tok)
+        );
+        my_memcpy(prompt->tokens.tok + prompt->tokens.nbr, &tok, sizeof(tok));
+        prompt->tokens.nbr += 1;
+    }
+}
+
+static
 void shell_prompt(shell_t *shell)
 {
     if (get_prompt(shell) == RET_ERROR)
         return;
+    tokenize(shell);
 }
 
 int minishell(int argc, char *const *argv, char *const *env)
