@@ -32,14 +32,14 @@ int get_prompt(shell_t *shell)
 }
 
 static
-void tokenize(shell_t *shell)
+token_t *tokenize(shell_t *shell)
 {
     prompt_t *prompt = &shell->prompt;
     token_t tok = { 0 };
     char *ptr = prompt->line;
 
     while (parser_next_token(&ptr, &tok) != NULL) {
-        DEBUG("token: [%s]", tok.ptr);
+        DEBUG("token: [%s]; size: [%u]", tok.ptr, tok.size);
         prompt->tokens.tok = my_reallocarray(
             prompt->tokens.tok, prompt->tokens.nbr + 1,
             prompt->tokens.nbr, sizeof(*prompt->tokens.tok)
@@ -47,6 +47,7 @@ void tokenize(shell_t *shell)
         my_memcpy(prompt->tokens.tok + prompt->tokens.nbr, &tok, sizeof(tok));
         prompt->tokens.nbr += 1;
     }
+    return prompt->tokens.tok;
 }
 
 static
@@ -54,7 +55,9 @@ void shell_prompt(shell_t *shell)
 {
     if (get_prompt(shell) == RET_ERROR)
         return;
-    tokenize(shell);
+    if (tokenize(shell) == NULL)
+        return;
+    execute(shell);
 }
 
 int minishell(int argc, char *const *argv, char *const *env)

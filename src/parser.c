@@ -12,6 +12,16 @@
 #include "minishell.h"
 
 static
+char *find_the_end_of_this(char *start)
+{
+    for (; *start != '\0'
+        && *start != ' '
+        && *start != '\n'
+        ; start++);
+    return start;
+}
+
+static
 char *get_end(char **start, bool *is_quoted)
 {
     char *end = NULL;
@@ -28,7 +38,7 @@ char *get_end(char **start, bool *is_quoted)
             *is_quoted = true;
             break;
         default:
-            end = my_strfind(*start, ' ');
+            end = find_the_end_of_this(*start);
             break;
     }
     return (end == NULL)

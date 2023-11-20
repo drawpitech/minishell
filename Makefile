@@ -30,6 +30,7 @@ VPATH := src
 SRC := minishell.c
 SRC += clear.c
 SRC += parser.c
+SRC += execute.c
 
 # Tests files
 VPATH += tests

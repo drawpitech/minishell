@@ -53,4 +53,9 @@ void clear_prompt(prompt_t *prompt);
  **/
 token_t *parser_next_token(char **ptr, token_t *tok);
 
+/*
+ * Run command passed as shell->prompt
+ */
+void execute(shell_t *shell);
+
 #endif /* MINISHELL_H_ */
