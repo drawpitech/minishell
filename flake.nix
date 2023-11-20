@@ -49,6 +49,7 @@
             man-pages
             man-pages-posix
             gdb
+            tcsh
           ] ++ deps;
         };
 
