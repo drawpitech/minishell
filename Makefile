@@ -28,6 +28,7 @@ LDFLAGS := -L./$(dir $(LIBMY)) -lmy
 # Source files
 VPATH := src
 SRC := minishell.c
+SRC += clear.c
 
 # Tests files
 VPATH += tests
