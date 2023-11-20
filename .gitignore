@@ -1,0 +1,25 @@
+# Binaries
+*.out
+unit_tests
+asan
+mysh
+prof
+
+# Compilation
+.build/
+*.a
+*.o
+include/my.h
+include/colors.h
+
+# Editors junk
+*~
+\#*#
+*.swp
+*.swo
+
+# Reports
+core.*
+*.log
+*.gcda
+*.gcno
