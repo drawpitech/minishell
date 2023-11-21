@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -53,28 +54,52 @@ static
 int run_command(shell_t *shell, char **argv)
 {
     pid_t child_pid = fork();
-    int wstatus;
 
-    if (child_pid == -1)
+    if (child_pid == -1) {
+        free(argv[0]);
+        free(argv);
         return ret_perror("minishell", NULL);
+    }
     if (child_pid == 0) {
         shell->is_running = false;
-        return execve(argv[0], argv, shell->env);
+        execve(argv[0], argv, shell->env);
     }
-    wait(&wstatus);
+    free(argv[0]);
+    free(argv);
     return RET_VALID;
 }
 
-void execute(shell_t *shell)
+static
+int return_value(int wstatus)
+{
+    if (WIFEXITED(wstatus))
+        return WEXITSTATUS(wstatus);
+    if (WIFSIGNALED(wstatus)) {
+        my_printf("%s\n", strsignal(WTERMSIG(wstatus)));
+        return SH_FATAL_CODE_SIGNAL + WTERMSIG(wstatus);
+    }
+    if (WIFSTOPPED(wstatus)) {
+        my_printf("%s\n", strsignal(WSTOPSIG(wstatus)));
+        return WSTOPSIG(wstatus);
+    }
+    if (WIFCONTINUED(wstatus))
+        my_printf("Continued\n");
+    return SH_CODE_SUCCES;
+}
+
+int execute(shell_t *shell)
 {
     char **argv;
+    int wstatus;
 
-    if (shell == NULL || shell->prompt.tokens.nbr == 0)
-        return;
+    if (shell == NULL)
+        return RET_ERROR;
+    if (shell->prompt.tokens.nbr == 0)
+        return RET_VALID;
     argv = create_argv(&shell->prompt);
-    if (argv == NULL)
-        return;
-    run_command(shell, argv);
-    free(argv[0]);
-    free(argv);
+    if (argv == NULL || run_command(shell, argv) == RET_ERROR)
+        return RET_ERROR;
+    wait(&wstatus);
+    shell->last_exit_code = return_value(wstatus);
+    return RET_VALID;
 }

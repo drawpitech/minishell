@@ -4,6 +4,7 @@ unit_tests
 asan
 mysh
 prof
+seg
 
 # Compilation
 .build/

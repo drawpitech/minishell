@@ -27,11 +27,21 @@ typedef struct {
 } prompt_t;
 
 typedef struct {
+    int last_exit_code;
     char working_dir[PATH_MAX];
     bool is_running;
     char *const *env;
     prompt_t prompt;
 } shell_t;
+
+enum {
+    SH_CODE_SUCCES = 0,
+    SH_CODE_GENERAL_ERROR = 1,
+    SH_CODE_CANNOT_EXEC = 126,
+    SH_CODE_CMD_NOT_FOUND = 127,
+    SH_FATAL_CODE_SIGNAL = 128,
+};
+
 
 /*
  * Entry point of the program.
@@ -56,6 +66,6 @@ token_t *parser_next_token(char **ptr, token_t *tok);
 /*
  * Run command passed as shell->prompt
  */
-void execute(shell_t *shell);
+int execute(shell_t *shell);
 
 #endif /* MINISHELL_H_ */

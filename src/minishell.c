@@ -15,6 +15,12 @@
 #include "minishell.h"
 
 static
+void print_prompt(shell_t *shell)
+{
+    my_printf("%d > ", shell->last_exit_code);
+}
+
+static
 int get_prompt(shell_t *shell)
 {
     static size_t offset = 0;
@@ -22,7 +28,7 @@ int get_prompt(shell_t *shell)
 
     shell->prompt = (prompt_t){ 0 };
     prompt = &shell->prompt;
-    my_printf("$> ");
+    print_prompt(shell);
     prompt->size = getline(&prompt->line, &offset, stdin);
     if (prompt->size == (size_t)-1) {
         shell->is_running = false;
@@ -58,7 +64,8 @@ void shell_prompt(shell_t *shell)
         return;
     if (tokenize(shell) == NULL)
         return;
-    execute(shell);
+    if (execute(shell) == RET_ERROR)
+        return;
 }
 
 int minishell(int argc, char *const *argv, char *const *env)
