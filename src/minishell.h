@@ -30,7 +30,7 @@ typedef struct {
     int last_exit_code;
     char working_dir[PATH_MAX];
     bool is_running;
-    char *const *env;
+    char **env;
     prompt_t prompt;
 } shell_t;
 
@@ -46,7 +46,7 @@ enum {
 /*
  * Entry point of the program.
  **/
-int minishell(int argc, char *const *argv, char *const *env);
+int minishell(int argc, char *const *argv, char **env);
 
 /*
  * Clear and free params of shell_t pointer.
@@ -72,11 +72,11 @@ int execute(shell_t *shell);
  * Get a variable in the environment, and return the value.
  * Searches: "$(variable)=*"
  */
-char const *my_getenv(char *const *env, char const *variable);
+char *my_getenv(char **env, char const *variable);
 
 /*
  * Get the fullpath of the cmd if found the the PATH variable.
  **/
-char *get_cmd_in_path(char const *cmd, char *const *env);
+char *get_cmd_in_path(char const *cmd, char **env);
 
 #endif /* MINISHELL_H_ */

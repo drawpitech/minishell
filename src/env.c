@@ -5,17 +5,21 @@
 ** env
 */
 
-#include <dirent.h>
 #include <linux/limits.h>
-#include <stdlib.h>
 #include <sys/types.h>
 
-#include "my.h"
-#include "minishell.h"
+#include <dirent.h>
+#include <stdlib.h>
+#include <string.h>
 
-char const *my_getenv(char *const *env, char const *variable)
+#include "debug.h"
+#include "minishell.h"
+#include "my.h"
+
+char *my_getenv(char **env, char const *variable)
 {
-    static char arg_name[131072];
+    size_t size = (variable != NULL) ? my_strlen(variable) + 2 : 0;
+    char arg_name[size];
 
     if (env == NULL || variable == NULL)
         return NULL;
@@ -28,34 +32,49 @@ char const *my_getenv(char *const *env, char const *variable)
 }
 
 static
-bool is_file_here(char const **env_path, char const *file)
+bool is_file_in_dir(char const *dir, char const *file)
 {
-    static char dirpath[PATH_MAX];
-    DIR *dir;
-    char *tmp = my_strfind(*env_path, ':');
-    size_t offset = (tmp == NULL) ? my_strlen(*env_path) : tmp - *env_path;
-    struct dirent *dirent;
+    struct dirent *dirent = NOT_NULL;
+    DIR *dirp = opendir(dir);
 
-    my_strncpy(dirpath, *env_path, offset);
-    dir = opendir(dirpath);
-    while (dir != NULL) {
-        dirent = readdir(dir);
+    DEBUG("%s -> %s", STRBOOL(dir != NULL), dir);
+    if (dirp == NULL)
+        return false;
+    while (dirent != NULL) {
+        dirent = readdir(dirp);
         if (dirent == NULL)
             break;
         if (my_strcmp(file, dirent->d_name) != 0)
             continue;
+        DEBUG("dir: %s", dir);
+        closedir(dirp);
         return true;
     }
-    *env_path += offset + 1;
-    if (dir != NULL)
-        closedir(dir);
+    closedir(dirp);
     return false;
 }
 
-char *get_cmd_in_path(char const *cmd, char *const *env)
+static
+char *get_file_in_dir(char **env_path, char const *file)
 {
-    static char fullpath[PATH_MAX];
-    char const *env_path;
+    static char dirpath[PATH_MAX];
+    char *tmp = my_strfind(*env_path, ':');
+    size_t offset = (tmp == NULL)
+        ? my_strlen(*env_path)
+        : (size_t)(tmp - *env_path);
+
+    my_strncpy(dirpath, *env_path, offset);
+    dirpath[offset] = '\0';
+    *env_path += offset + (tmp != NULL);
+    return (is_file_in_dir(dirpath, file))
+        ? get_fullpath(dirpath, file, dirpath)
+        : NULL;
+}
+
+char *get_cmd_in_path(char const *cmd, char **env)
+{
+    char *env_path;
+    char *fullpath;
 
     if (cmd == NULL || env == NULL)
         return NULL;
@@ -65,10 +84,9 @@ char *get_cmd_in_path(char const *cmd, char *const *env)
         return NULL;
     }
     for (; *env_path;) {
-        if (!is_file_here(&env_path, cmd))
-            continue;
-        get_fullpath(env_path, cmd, fullpath);
-        return fullpath;
+        fullpath = get_file_in_dir(&env_path, cmd);
+        if (fullpath != NULL)
+            return fullpath;
     }
     return NULL;
 }

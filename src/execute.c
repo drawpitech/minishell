@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "debug.h"
 #include "my.h"
 
 #include "minishell.h"
@@ -47,12 +48,18 @@ char **create_argv(prompt_t const *prompt)
 }
 
 static
-char const *get_cmd(char const *str, char *const *env)
+char const *get_cmd(char const *str, char **env)
 {
+    char *cmd;
+
     for (size_t i = 0; str[i]; i++)
         if (str[i] == '/')
             return str;
-    return get_cmd_in_path(str, env);
+    cmd = get_cmd_in_path(str, env);
+    if (cmd != NULL)
+        return cmd;
+    ret_perror(str, "Command not found.\n");
+    return NULL;
 }
 
 static
@@ -62,10 +69,10 @@ int run_command(shell_t *shell, char **argv)
     char const *cmd = get_cmd(argv[0], shell->env);
 
     if (cmd == NULL) {
-        ret_perror(argv[0], "Command not found.\n");
         free(argv);
         return SH_CODE_CMD_NOT_FOUND;
     }
+    DEBUG("Running %s", cmd);
     child_pid = fork();
     if (child_pid == -1) {
         free(argv);

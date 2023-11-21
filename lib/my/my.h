@@ -37,6 +37,9 @@
     #define BOOL(arg) (!!(arg))
     #define CHR(n) ((n) + '0')
     #define ATTR(x) __attribute__((x))
+    #define STRBOOL(check) ((check) ? "true" : "false")
+
+    #define NOT_NULL ((void *)1)
 
 enum {
     RET_VALID = 0,
