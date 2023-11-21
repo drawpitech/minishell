@@ -7,6 +7,8 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "my.h"
 
@@ -47,6 +49,22 @@ char **create_argv(prompt_t const *prompt)
     return argv;
 }
 
+static
+int run_command(shell_t *shell, char **argv)
+{
+    pid_t child_pid = fork();
+    int wstatus;
+
+    if (child_pid == -1)
+        return ret_perror("minishell", NULL);
+    if (child_pid == 0) {
+        shell->is_running = false;
+        return execve(argv[0], argv, shell->env);
+    }
+    wait(&wstatus);
+    return RET_VALID;
+}
+
 void execute(shell_t *shell)
 {
     char **argv;
@@ -54,8 +72,9 @@ void execute(shell_t *shell)
     if (shell == NULL || shell->prompt.tokens.nbr == 0)
         return;
     argv = create_argv(&shell->prompt);
-    if (argv == NULL || argv[0] == NULL)
+    if (argv == NULL)
         return;
+    run_command(shell, argv);
     free(argv[0]);
     free(argv);
 }
