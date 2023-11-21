@@ -29,17 +29,13 @@ static
 char **create_argv(prompt_t const *prompt)
 {
     token_t *tokens = prompt->tokens.tok;
-    char *raw_buf = malloc(sum_length(prompt) * sizeof(char));
-    char *ptr = raw_buf;
-    char **argv;
+    size_t offset_argv = (prompt->tokens.nbr + 1) * sizeof(char *);
+    char **argv = malloc(offset_argv + sum_length(prompt) * sizeof(char));
+    char *ptr;
 
-    if (raw_buf == NULL)
+    if (argv == NULL)
         return NULL;
-    argv = malloc((prompt->tokens.nbr + 1) * sizeof(char *));
-    if (argv == NULL) {
-        free(argv);
-        return NULL;
-    }
+    ptr = (char *)argv + offset_argv;
     for (size_t i = 0; i < prompt->tokens.nbr; i++) {
         argv[i] = ptr;
         my_strncpy(ptr, tokens[i].ptr, tokens[i].size);
@@ -56,7 +52,6 @@ int run_command(shell_t *shell, char **argv)
     pid_t child_pid = fork();
 
     if (child_pid == -1) {
-        free(argv[0]);
         free(argv);
         return ret_perror("minishell", NULL);
     }
@@ -64,7 +59,6 @@ int run_command(shell_t *shell, char **argv)
         shell->is_running = false;
         execve(argv[0], argv, shell->env);
     }
-    free(argv[0]);
     free(argv);
     return RET_VALID;
 }
