@@ -26,6 +26,7 @@ int get_prompt(shell_t *shell)
     prompt->size = getline(&prompt->line, &offset, stdin);
     if (prompt->size == (size_t)-1) {
         shell->is_running = false;
+        my_printf("exit\n");
         return RET_ERROR;
     }
     return RET_VALID;
