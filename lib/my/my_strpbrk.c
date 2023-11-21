@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2023
 ** minishell
 ** File description:
-** my_strstr
+** my_strpbrk
 */
 
 #include <stddef.h>
