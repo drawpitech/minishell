@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "my.h"
 
@@ -17,6 +18,8 @@
 static
 void print_prompt(shell_t *shell)
 {
+    if (!shell->isatty)
+        return;
     my_printf("%d > ", shell->last_exit_code);
 }
 
@@ -32,7 +35,8 @@ int get_prompt(shell_t *shell)
     prompt->size = getline(&prompt->line, &offset, stdin);
     if (prompt->size == (size_t)-1) {
         shell->is_running = false;
-        my_printf("exit\n");
+        if (shell->isatty)
+            my_printf("exit\n");
         return RET_ERROR;
     }
     return RET_VALID;
@@ -74,6 +78,7 @@ int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
 
     shell.is_running = true;
     shell.env = env;
+    shell.isatty = isatty(STDIN_FILENO);
     while (shell.is_running) {
         shell_prompt(&shell);
         clear_prompt(&shell.prompt);

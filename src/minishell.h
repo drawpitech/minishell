@@ -32,6 +32,7 @@ typedef struct {
     bool is_running;
     char **env;
     prompt_t prompt;
+    bool isatty;
 } shell_t;
 
 enum {
