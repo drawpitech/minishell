@@ -40,6 +40,8 @@
     #define STRBOOL(check) ((check) ? "true" : "false")
 
     #define NOT_NULL ((void *)1)
+    #define USED ATTR(used)
+    #define UNUSED ATTR(unused)
 
 enum {
     RET_VALID = 0,

@@ -68,7 +68,7 @@ void shell_prompt(shell_t *shell)
         return;
 }
 
-int minishell(int argc, char *const *argv, char **env)
+int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
 {
     shell_t shell = { 0 };
 
