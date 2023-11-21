@@ -32,6 +32,8 @@ SRC += clear.c
 SRC += parser.c
 SRC += execute.c
 SRC += env.c
+SRC += builtins/builtins.c
+SRC += builtins/exit.c
 
 # Tests files
 VPATH += tests

@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "builtins/builtins.h"
 #include "debug.h"
 #include "my.h"
 
@@ -63,19 +64,11 @@ char const *get_cmd(char const *str, char **env)
 }
 
 static
-int run_command(shell_t *shell, char **argv)
+int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
 {
-    pid_t child_pid;
-    char const *cmd = get_cmd(argv[0], shell->env);
+    pid_t child_pid = fork();
 
-    if (cmd == NULL) {
-        free(argv);
-        return SH_CODE_CMD_NOT_FOUND;
-    }
-    DEBUG("Running %s", cmd);
-    child_pid = fork();
     if (child_pid == -1) {
-        free(argv);
         ret_perror("minishell", NULL);
         return SH_CODE_GENERAL_ERROR;
     }
@@ -83,8 +76,30 @@ int run_command(shell_t *shell, char **argv)
         shell->is_running = false;
         execve(cmd, argv, shell->env);
     }
-    free(argv);
     return SH_CODE_SUCCES;
+}
+
+static
+int run_command(shell_t *shell, char **argv)
+{
+    char const *cmd;
+    int ret;
+    builtin_cmd_t *builtin = get_builtin(argv[0]);
+
+    if (builtin != NULL) {
+        DEBUG("Running builtin %s", argv[0]);
+        free(argv);
+        return builtin(shell);
+    }
+    cmd = get_cmd(argv[0], shell->env);
+    if (cmd == NULL) {
+        free(argv);
+        return SH_CODE_CMD_NOT_FOUND;
+    }
+    DEBUG("Running %s", cmd);
+    ret = run_external_cmd(shell, cmd, argv);
+    free(argv);
+    return ret;
 }
 
 static
