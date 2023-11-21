@@ -31,6 +31,7 @@ SRC := minishell.c
 SRC += clear.c
 SRC += parser.c
 SRC += execute.c
+SRC += env.c
 
 # Tests files
 VPATH += tests

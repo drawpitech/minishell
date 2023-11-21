@@ -68,4 +68,15 @@ token_t *parser_next_token(char **ptr, token_t *tok);
  */
 int execute(shell_t *shell);
 
+/*
+ * Get a variable in the environment, and return the value.
+ * Searches: "$(variable)=*"
+ */
+char const *my_getenv(char *const *env, char const *variable);
+
+/*
+ * Get the fullpath of the cmd if found the the PATH variable.
+ **/
+char *get_cmd_in_path(char const *cmd, char *const *env);
+
 #endif /* MINISHELL_H_ */

@@ -47,20 +47,37 @@ char **create_argv(prompt_t const *prompt)
 }
 
 static
+char const *get_cmd(char const *str, char *const *env)
+{
+    for (size_t i = 0; str[i]; i++)
+        if (str[i] == '/')
+            return str;
+    return get_cmd_in_path(str, env);
+}
+
+static
 int run_command(shell_t *shell, char **argv)
 {
-    pid_t child_pid = fork();
+    pid_t child_pid;
+    char const *cmd = get_cmd(argv[0], shell->env);
 
+    if (cmd == NULL) {
+        ret_perror(argv[0], "Command not found.\n");
+        free(argv);
+        return SH_CODE_CMD_NOT_FOUND;
+    }
+    child_pid = fork();
     if (child_pid == -1) {
         free(argv);
-        return ret_perror("minishell", NULL);
+        ret_perror("minishell", NULL);
+        return SH_CODE_GENERAL_ERROR;
     }
     if (child_pid == 0) {
         shell->is_running = false;
-        execve(argv[0], argv, shell->env);
+        execve(cmd, argv, shell->env);
     }
     free(argv);
-    return RET_VALID;
+    return SH_CODE_SUCCES;
 }
 
 static
@@ -91,9 +108,11 @@ int execute(shell_t *shell)
     if (shell->prompt.tokens.nbr == 0)
         return RET_VALID;
     argv = create_argv(&shell->prompt);
-    if (argv == NULL || run_command(shell, argv) == RET_ERROR)
+    if (argv == NULL)
         return RET_ERROR;
+    shell->last_exit_code = run_command(shell, argv);
     wait(&wstatus);
-    shell->last_exit_code = return_value(wstatus);
+    if (shell->last_exit_code == SH_CODE_SUCCES)
+        shell->last_exit_code = return_value(wstatus);
     return RET_VALID;
 }
