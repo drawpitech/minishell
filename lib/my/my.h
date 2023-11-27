@@ -62,6 +62,7 @@ char *my_nbr_to_base(int nbr, char const *base);
 char *my_revstr(char *src);
 char *my_str_join(size_t argc, char *const *argv, char const *separator);
 char *my_strcapitalize(char *str);
+char *my_strapp(char **dest, char const *src);
 char *my_strcat(char *dest, char const *src);
 char *my_strcpy(char *dest, char const *src);
 char *my_strdup(char const *src);

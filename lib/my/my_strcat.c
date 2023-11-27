@@ -14,7 +14,7 @@ char *my_strcat(char *dest, char const *src)
     size_t len;
     size_t i = 0;
 
-    if (!dest || !src)
+    if (dest == NULL || src == NULL)
         return NULL;
     len = my_strlen(dest);
     for (; src[i]; i++)
@@ -28,11 +28,23 @@ char *my_strncat(char *dest, char const *src, size_t n)
     size_t len;
     size_t i;
 
-    if (!dest || !src)
+    if (dest == NULL || src == NULL)
         return NULL;
     len = my_strlen(dest);
     for (i = 0; src[i] && i < n; i++)
         dest[len + i] = src[i];
     dest[len + i] = '\0';
     return dest;
+}
+
+char *my_strapp(char **dest, char const *src)
+{
+    size_t len;
+
+    if (dest == NULL || *dest == NULL || src == NULL)
+        return NULL;
+    my_strcat(*dest, src);
+    len = my_strlen(src);
+    *dest += len;
+    return *dest;
 }
