@@ -15,6 +15,7 @@
 typedef int (builtin_cmd_t)(shell_t *);
 
 int builtin_exit(shell_t *shell);
+int builtin_env(shell_t *shell);
 
 /*
  * Get the builtin corresponding to the string cmd.
@@ -26,6 +27,7 @@ static const struct {
     builtin_cmd_t *func;
 } BUILTINS[] = {
     { "exit", &builtin_exit },
+    { "env", &builtin_env },
     { NULL, NULL },
 };
 
