@@ -1,8 +1,8 @@
 /*
 ** EPITECH PROJECT, 2023
-** bob
+** minishell
 ** File description:
-** bob
+** env
 */
 
 #include "builtins.h"

@@ -1,8 +1,8 @@
 ##
 ## EPITECH PROJECT, 2023
-## Libmy
+## minishell
 ## File description:
-## Makefile for libmy
+## Makefile
 ##
 
 # ↓ Basic variables

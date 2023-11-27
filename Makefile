@@ -1,8 +1,8 @@
 ##
 ## EPITECH PROJECT, 2023
-## bsminishell
+## minishell
 ## File description:
-## Makefile for bsminishell
+## Makefile
 ##
 
 # ↓ Basic variables
