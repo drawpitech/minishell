@@ -8,7 +8,7 @@
 #include "builtins.h"
 #include "my.h"
 
-int builtin_env(shell_t *shell)
+int builtin_env(shell_t *shell, UNUSED char **argv)
 {
     char **ptr;
 

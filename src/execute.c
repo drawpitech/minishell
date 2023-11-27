@@ -110,8 +110,9 @@ int run_command(shell_t *shell, char **argv)
 
     if (builtin != NULL) {
         DEBUG("Running builtin %s", argv[0]);
+        ret = builtin(shell, argv);
         free(argv);
-        return builtin(shell);
+        return ret;
     }
     cmd = get_cmd(argv[0], shell->env);
     if (cmd == NULL) {

@@ -12,10 +12,10 @@
 
     #include "../minishell.h"
 
-typedef int (builtin_cmd_t)(shell_t *);
+typedef int (builtin_cmd_t)(shell_t *, char **);
 
-int builtin_exit(shell_t *shell);
-int builtin_env(shell_t *shell);
+int builtin_exit(shell_t *shell, char **argv);
+int builtin_env(shell_t *shell, char **argv);
 
 /*
  * Get the builtin corresponding to the string cmd.

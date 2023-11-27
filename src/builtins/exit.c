@@ -5,10 +5,11 @@
 ** exit
 */
 
-#include "../minishell.h"
+#include "my.h"
+
 #include "builtins.h"
 
-int builtin_exit(shell_t *shell)
+int builtin_exit(shell_t *shell, UNUSED char **argv)
 {
     shell->is_running = false;
     return SH_CODE_SUCCES;
