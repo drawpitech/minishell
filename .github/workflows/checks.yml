@@ -55,8 +55,8 @@ jobs:
         run: |
           nix run github:drawpitech/EpiHeader -- --name "minishell"
           git add .
-          git commit -m "Fix headers"
-          git push origin
+          git commit -m "Fix headers" || echo "nothing to commit."
+          git push origin || echo "nothing to push."
 
   coding_style:
     needs: [ unittest ]
