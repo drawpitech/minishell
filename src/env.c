@@ -5,29 +5,37 @@
 ** env
 */
 
-#include <linux/limits.h>
-#include <sys/types.h>
-
 #include <dirent.h>
+#include <linux/limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "debug.h"
 #include "minishell.h"
 #include "my.h"
 
-char *my_getenv(char **env, char const *variable)
+char *my_getenv(shell_t *shell, char const *variable)
 {
     size_t size = (variable != NULL) ? my_strlen(variable) + 2 : 0;
     char arg_name[size];
 
-    if (env == NULL || variable == NULL)
+    if (shell == NULL || variable == NULL)
         return NULL;
     my_strcpy(arg_name, variable);
     my_strcat(arg_name, "=");
-    for (; *env != NULL; env++)
-        if (*env != NULL && my_str_startswith(*env, arg_name))
-            return *env + my_strlen(arg_name);
+    for (size_t i = 0; i < shell->env.count; i++)
+        if (my_strcmp(shell->env.variables[i].key, variable) == 0)
+            return shell->env.variables[i].value;
+    return NULL;
+}
+
+char *my_setenv(char **env, char const *variable)
+{
+    UNUSED char *current;
+
+    if (env == NULL || variable == NULL)
+        return NULL;
     return NULL;
 }
 
@@ -71,14 +79,14 @@ char *get_file_in_dir(char **env_path, char const *file)
         : NULL;
 }
 
-char *get_cmd_in_path(char const *cmd, char **env)
+char *get_cmd_in_path(shell_t *shell, char const *cmd)
 {
     char *env_path;
     char *fullpath;
 
-    if (cmd == NULL || env == NULL)
+    if (cmd == NULL)
         return NULL;
-    env_path = my_getenv(env, "PATH");
+    env_path = my_getenv(shell, "PATH");
     if (env_path == NULL) {
         ret_perror("mysh", "variable 'PATH' missing.");
         return NULL;
@@ -89,4 +97,69 @@ char *get_cmd_in_path(char const *cmd, char **env)
             return fullpath;
     }
     return NULL;
+}
+
+int init_env(shell_t *shell, char *const *env)
+{
+    char *pool;
+    size_t size = 0;
+    size_t alloc_str = 0;
+    char *tmp;
+
+    if (env == NULL)
+        return RET_VALID;
+    while (env[size] != NULL) {
+        alloc_str += my_strlen(env[size]) + 1;
+        size += 1;
+    }
+    pool = malloc((alloc_str + 1) * sizeof(char));
+    if (pool == NULL)
+        return RET_ERROR;
+    shell->env.variables =  malloc((size + 1) * sizeof(env_variable_t));
+    if (shell->env.variables == NULL) {
+        free(pool);
+        return RET_ERROR;
+    }
+    pool[alloc_str] = '\0';
+    shell->env.pool = pool;
+    shell->env.count = size;
+    for (size_t i = 0; i < shell->env.count; i++) {
+        my_strcpy(pool, env[i]);
+        tmp = my_strfind(pool, '=');
+        if (tmp == NULL) {
+            free(shell->env.pool);
+            free(shell->env.variables);
+            return RET_ERROR;
+        }
+        *tmp = '\0';
+        shell->env.variables[i].key = pool;
+        shell->env.variables[i].value = tmp + 1;
+        pool += my_strlen(env[i]) + 1;
+    }
+    return RET_VALID;
+}
+
+char **get_envp(shell_t *shell)
+{
+    size_t size = 0;
+    char **envp;
+    char *pool;
+
+    if (shell == NULL)
+        return NULL;
+    for (size_t i = 0; i < shell->env.count; i++)
+        size += my_strlen(shell->env.variables[i].key) + my_strlen(shell->env.variables[i].value) + 2;
+    envp = malloc((shell->env.count + 1) * sizeof(char *));
+    if (envp == NULL)
+        return NULL;
+    pool = malloc((size + 1) * sizeof(char));
+    if (pool == NULL)
+        return NULL;
+    pool[size] = '\0';
+    for (size_t i = 0; i < shell->env.count; i++) {
+        my_strapp(&pool, shell->env.variables[i].key);
+        my_strapp(&pool, "=");
+        my_strapp(&pool, shell->env.variables[i].value);
+    }
+    return envp;
 }

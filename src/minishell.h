@@ -27,10 +27,19 @@ typedef struct {
 } prompt_t;
 
 typedef struct {
+    char *key;
+    char *value;
+} env_variable_t;
+
+typedef struct {
     int last_exit_code;
     char working_dir[PATH_MAX];
     bool is_running;
-    char **env;
+    struct {
+        env_variable_t *variables;
+        char *pool;
+        size_t count;
+    } env;
     prompt_t prompt;
     bool isatty;
 } shell_t;
@@ -73,11 +82,18 @@ int execute(shell_t *shell);
  * Get a variable in the environment, and return the value.
  * Searches: "$(variable)=*"
  */
-char *my_getenv(char **env, char const *variable);
+char *my_getenv(shell_t *shell, char const *variable);
 
 /*
  * Get the fullpath of the cmd if found the the PATH variable.
  **/
-char *get_cmd_in_path(char const *cmd, char **env);
+char *get_cmd_in_path(shell_t *shell, char const *cmd);
+
+/*
+ * Init shell.env variables with char **env
+ */
+int init_env(shell_t *shell, char *const *env);
+
+char **get_envp(shell_t *shell);
 
 #endif /* MINISHELL_H_ */

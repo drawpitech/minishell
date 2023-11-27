@@ -76,8 +76,9 @@ int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
 {
     shell_t shell = { 0 };
 
+    if (init_env(&shell, env) == RET_ERROR)
+        return RET_ERROR;
     shell.is_running = true;
-    shell.env = env;
     shell.isatty = isatty(STDIN_FILENO);
     while (shell.is_running) {
         shell_prompt(&shell);

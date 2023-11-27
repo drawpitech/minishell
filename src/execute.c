@@ -49,14 +49,14 @@ char **create_argv(prompt_t const *prompt)
 }
 
 static
-char const *get_cmd(char const *str, char **env)
+char const *get_cmd(shell_t *shell, char const *str)
 {
     char *cmd;
 
     for (size_t i = 0; str[i]; i++)
         if (str[i] == '/')
             return str;
-    cmd = get_cmd_in_path(str, env);
+    cmd = get_cmd_in_path(shell, str);
     if (cmd != NULL)
         return cmd;
     ret_perror(str, "Command not found.\n");
@@ -86,6 +86,7 @@ int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
 {
     pid_t child_pid = fork();
     int wstatus;
+    char **env;
 
     if (child_pid == -1) {
         ret_perror("minishell", NULL);
@@ -93,7 +94,10 @@ int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
     }
     if (child_pid == 0) {
         shell->is_running = false;
-        execve(cmd, argv, shell->env);
+        env = get_envp(shell);
+        execve(cmd, argv, env);
+        free(env[0]);
+        free(env);
     } else {
         wait(&wstatus);
         return return_value(wstatus);
@@ -114,7 +118,7 @@ int run_command(shell_t *shell, char **argv)
         free(argv);
         return ret;
     }
-    cmd = get_cmd(argv[0], shell->env);
+    cmd = get_cmd(shell, argv[0]);
     if (cmd == NULL) {
         free(argv);
         return SH_CODE_CMD_NOT_FOUND;

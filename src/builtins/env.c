@@ -10,12 +10,13 @@
 
 int builtin_env(shell_t *shell, UNUSED char **argv)
 {
-    char **ptr;
+    env_variable_t *var;
 
-    if (shell == NULL || shell->env == NULL)
+    if (shell == NULL)
         return SH_CODE_GENERAL_ERROR;
-    ptr = shell->env;
-    for (; *ptr != NULL; ptr++)
-        my_printf("%s\n", *ptr);
+    for (size_t i = 0; i < shell->env.count; i++) {
+        var = shell->env.variables + i;
+        my_printf("%s=%s\n", var->key, var->value);
+    }
     return SH_CODE_SUCCES;
 }
