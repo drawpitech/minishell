@@ -144,11 +144,14 @@ char **get_envp(shell_t *shell)
     size_t size = 0;
     char **envp;
     char *pool;
+    env_variable_t *var;
 
     if (shell == NULL)
         return NULL;
-    for (size_t i = 0; i < shell->env.count; i++)
-        size += my_strlen(shell->env.variables[i].key) + my_strlen(shell->env.variables[i].value) + 2;
+    for (size_t i = 0; i < shell->env.count; i++) {
+        var = shell->env.variables + i;
+        size += my_strlen(var->key) + my_strlen(var->value) + 2;
+    }
     envp = malloc((shell->env.count + 1) * sizeof(char *));
     if (envp == NULL)
         return NULL;
@@ -157,9 +160,13 @@ char **get_envp(shell_t *shell)
         return NULL;
     pool[size] = '\0';
     for (size_t i = 0; i < shell->env.count; i++) {
-        my_strapp(&pool, shell->env.variables[i].key);
+        var = shell->env.variables + i;
+        envp[i] = pool;
+        my_strapp(&pool, var->key);
         my_strapp(&pool, "=");
-        my_strapp(&pool, shell->env.variables[i].value);
+        my_strapp(&pool, var->value);
+        pool++;
     }
+    envp[shell->env.count] = NULL;
     return envp;
 }

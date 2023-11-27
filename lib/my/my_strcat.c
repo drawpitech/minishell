@@ -39,12 +39,9 @@ char *my_strncat(char *dest, char const *src, size_t n)
 
 char *my_strapp(char **dest, char const *src)
 {
-    size_t len;
-
     if (dest == NULL || *dest == NULL || src == NULL)
         return NULL;
-    my_strcat(*dest, src);
-    len = my_strlen(src);
-    *dest += len;
+    my_strcpy(*dest, src);
+    *dest += my_strlen(src);
     return *dest;
 }
