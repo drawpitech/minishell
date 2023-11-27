@@ -64,9 +64,28 @@ char const *get_cmd(char const *str, char **env)
 }
 
 static
+int return_value(int wstatus)
+{
+    if (WIFEXITED(wstatus))
+        return WEXITSTATUS(wstatus);
+    if (WIFSIGNALED(wstatus)) {
+        my_printf("%s\n", strsignal(WTERMSIG(wstatus)));
+        return SH_FATAL_CODE_SIGNAL + WTERMSIG(wstatus);
+    }
+    if (WIFSTOPPED(wstatus)) {
+        my_printf("%s\n", strsignal(WSTOPSIG(wstatus)));
+        return WSTOPSIG(wstatus);
+    }
+    if (WIFCONTINUED(wstatus))
+        my_printf("Continued\n");
+    return SH_CODE_SUCCES;
+}
+
+static
 int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
 {
     pid_t child_pid = fork();
+    int wstatus;
 
     if (child_pid == -1) {
         ret_perror("minishell", NULL);
@@ -75,6 +94,9 @@ int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
     if (child_pid == 0) {
         shell->is_running = false;
         execve(cmd, argv, shell->env);
+    } else {
+        wait(&wstatus);
+        return return_value(wstatus);
     }
     return SH_CODE_SUCCES;
 }
@@ -102,28 +124,9 @@ int run_command(shell_t *shell, char **argv)
     return ret;
 }
 
-static
-int return_value(int wstatus)
-{
-    if (WIFEXITED(wstatus))
-        return WEXITSTATUS(wstatus);
-    if (WIFSIGNALED(wstatus)) {
-        my_printf("%s\n", strsignal(WTERMSIG(wstatus)));
-        return SH_FATAL_CODE_SIGNAL + WTERMSIG(wstatus);
-    }
-    if (WIFSTOPPED(wstatus)) {
-        my_printf("%s\n", strsignal(WSTOPSIG(wstatus)));
-        return WSTOPSIG(wstatus);
-    }
-    if (WIFCONTINUED(wstatus))
-        my_printf("Continued\n");
-    return SH_CODE_SUCCES;
-}
-
 int execute(shell_t *shell)
 {
     char **argv;
-    int wstatus;
 
     if (shell == NULL)
         return RET_ERROR;
@@ -133,8 +136,5 @@ int execute(shell_t *shell)
     if (argv == NULL)
         return RET_ERROR;
     shell->last_exit_code = run_command(shell, argv);
-    wait(&wstatus);
-    if (shell->last_exit_code == SH_CODE_SUCCES)
-        shell->last_exit_code = return_value(wstatus);
     return RET_VALID;
 }
