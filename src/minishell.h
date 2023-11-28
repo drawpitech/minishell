@@ -27,8 +27,8 @@ typedef struct {
 } prompt_t;
 
 typedef struct {
-    char *key;
-    char *value;
+    size_t key;
+    size_t value;
 } env_variable_t;
 
 typedef struct {
@@ -38,6 +38,7 @@ typedef struct {
     struct {
         env_variable_t *variables;
         size_t count;
+        size_t allocated;
     } env;
     prompt_t prompt;
     bool isatty;
