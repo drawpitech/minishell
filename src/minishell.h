@@ -37,7 +37,6 @@ typedef struct {
     bool is_running;
     struct {
         env_variable_t *variables;
-        char *pool;
         size_t count;
     } env;
     prompt_t prompt;

@@ -93,12 +93,27 @@ char *get_cmd_in_path(shell_t *shell, char const *cmd)
     return NULL;
 }
 
+static
+int add_env_variable(shell_t *shell, char *const *env, char **ptr, size_t i)
+{
+    my_strcpy(*ptr, env[i]);
+    shell->env.variables[i].key = *ptr;
+    *ptr = my_strfind(*ptr, '=');
+    if (*ptr == NULL) {
+        free(shell->env.variables);
+        return RET_ERROR;
+    }
+    **ptr = '\0';
+    shell->env.variables[i].value = *ptr + 1;
+    *ptr += my_strlen(*ptr + 1) + 2;
+    return RET_VALID;
+}
+
 int init_env(shell_t *shell, char *const *env)
 {
-    char *pool;
+    char *ptr;
     size_t size = 0;
     size_t alloc_str = 0;
-    char *tmp;
 
     if (env == NULL)
         return RET_VALID;
@@ -106,30 +121,15 @@ int init_env(shell_t *shell, char *const *env)
         alloc_str += my_strlen(env[size]) + 1;
         size += 1;
     }
-    pool = malloc((alloc_str + 1) * sizeof(char));
-    if (pool == NULL)
+    shell->env.variables = malloc((size + 1) * sizeof(env_variable_t)
+        + (alloc_str + 1) * sizeof(char));
+    if (shell->env.variables == NULL)
         return RET_ERROR;
-    shell->env.variables =  malloc((size + 1) * sizeof(env_variable_t));
-    if (shell->env.variables == NULL) {
-        free(pool);
-        return RET_ERROR;
-    }
-    pool[alloc_str] = '\0';
-    shell->env.pool = pool;
+    ptr = (char *)shell->env.variables + (size + 1) * sizeof(env_variable_t);
     shell->env.count = size;
-    for (size_t i = 0; i < shell->env.count; i++) {
-        my_strcpy(pool, env[i]);
-        tmp = my_strfind(pool, '=');
-        if (tmp == NULL) {
-            free(shell->env.pool);
-            free(shell->env.variables);
+    for (size_t i = 0; i < shell->env.count; i++)
+        if (add_env_variable(shell, env, &ptr, i) == RET_ERROR)
             return RET_ERROR;
-        }
-        *tmp = '\0';
-        shell->env.variables[i].key = pool;
-        shell->env.variables[i].value = tmp + 1;
-        pool += my_strlen(env[i]) + 1;
-    }
     return RET_VALID;
 }
 
