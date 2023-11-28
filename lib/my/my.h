@@ -50,6 +50,7 @@ enum {
 
 typedef int (compar_func_t)(void const *, void const *);
 
+bool my_memassert(const void *got, const void *expect, size_t n);
 bool my_str_isalpha(char const *str);
 bool my_str_islower(char const *str);
 bool my_str_isnum(char const *str);
@@ -61,8 +62,8 @@ char *get_fullpath(char const *directory, char const *filename, char *result);
 char *my_nbr_to_base(int nbr, char const *base);
 char *my_revstr(char *src);
 char *my_str_join(size_t argc, char *const *argv, char const *separator);
-char *my_strcapitalize(char *str);
 char *my_strapp(char **dest, char const *src);
+char *my_strcapitalize(char *str);
 char *my_strcat(char *dest, char const *src);
 char *my_strcpy(char *dest, char const *src);
 char *my_strdup(char const *src);
@@ -89,6 +90,7 @@ int str_to_int(char const *str);
 int str_to_int_base(char const *str, char const *base);
 size_t my_i64_len(int64_t n);
 size_t my_i64_len_base(int64_t n, const char *base);
+size_t my_memfind(const void *arr, const void *target, size_t n);
 size_t my_nbr_len_base(size_t n, const char *base);
 size_t my_putnchar(char c, size_t n);
 size_t my_putnstr(char const *str, size_t n);
