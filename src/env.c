@@ -17,13 +17,8 @@
 
 char *my_getenv(shell_t *shell, char const *variable)
 {
-    size_t size = (variable != NULL) ? my_strlen(variable) + 2 : 0;
-    char arg_name[size];
-
     if (shell == NULL || variable == NULL)
         return NULL;
-    my_strcpy(arg_name, variable);
-    my_strcat(arg_name, "=");
     for (size_t i = 0; i < shell->env.count; i++)
         if (my_strcmp(shell->env.variables[i].key, variable) == 0)
             return shell->env.variables[i].value;
@@ -45,7 +40,6 @@ bool is_file_in_dir(char const *dir, char const *file)
     struct dirent *dirent = NOT_NULL;
     DIR *dirp = opendir(dir);
 
-    DEBUG("%s -> %s", STRBOOL(dir != NULL), dir);
     if (dirp == NULL)
         return false;
     while (dirent != NULL) {
@@ -139,34 +133,37 @@ int init_env(shell_t *shell, char *const *env)
     return RET_VALID;
 }
 
+static
+void append_env_var(shell_t *shell, char **envp, size_t i, char **pool)
+{
+    env_variable_t *var = shell->env.variables + i;
+
+    envp[i] = *pool;
+    my_strapp(pool, var->key);
+    my_strapp(pool, "=");
+    my_strapp(pool, var->value);
+    *pool += 1;
+}
+
 char **get_envp(shell_t *shell)
 {
     size_t size = 0;
     char **envp;
     char *pool;
-    env_variable_t *var;
 
     if (shell == NULL)
         return NULL;
-    for (size_t i = 0; i < shell->env.count; i++) {
-        var = shell->env.variables + i;
-        size += my_strlen(var->key) + my_strlen(var->value) + 2;
-    }
-    envp = malloc((shell->env.count + 1) * sizeof(char *));
+    for (size_t i = 0; i < shell->env.count; i++)
+        size += my_strlen(shell->env.variables[i].key)
+            + my_strlen(shell->env.variables[i].value) + 2;
+    envp = malloc((shell->env.count + 1) * sizeof(char *)
+        + (size + 1) * sizeof(char));
     if (envp == NULL)
         return NULL;
-    pool = malloc((size + 1) * sizeof(char));
-    if (pool == NULL)
-        return NULL;
+    pool = (char *)envp + (shell->env.count + 1) * sizeof(char *);
     pool[size] = '\0';
-    for (size_t i = 0; i < shell->env.count; i++) {
-        var = shell->env.variables + i;
-        envp[i] = pool;
-        my_strapp(&pool, var->key);
-        my_strapp(&pool, "=");
-        my_strapp(&pool, var->value);
-        pool++;
-    }
+    for (size_t i = 0; i < shell->env.count; i++)
+        append_env_var(shell, envp, i, &pool);
     envp[shell->env.count] = NULL;
     return envp;
 }

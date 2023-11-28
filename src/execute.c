@@ -98,7 +98,6 @@ int run_external_cmd(shell_t *shell, char const *cmd, char **argv)
         shell->is_running = false;
         env = get_envp(shell);
         execve(cmd, argv, env);
-        free(env[0]);
         free(env);
     } else {
         wait(&wstatus);
