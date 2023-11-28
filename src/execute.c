@@ -5,6 +5,7 @@
 ** execute
 */
 
+#include <dirent.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -27,6 +28,66 @@ size_t sum_length(prompt_t const *prompt)
     for (size_t i = 0; i < prompt->tokens.nbr; i++)
         sum += prompt->tokens.tok[i].size;
     return sum;
+}
+
+static
+bool is_file_in_dir(char const *dir, char const *file)
+{
+    struct dirent *dirent = NOT_NULL;
+    DIR *dirp = opendir(dir);
+
+    if (dirp == NULL)
+        return false;
+    while (dirent != NULL) {
+        dirent = readdir(dirp);
+        if (dirent == NULL)
+            break;
+        if (my_strcmp(file, dirent->d_name) != 0)
+            continue;
+        DEBUG("dir: %s", dir);
+        closedir(dirp);
+        return true;
+    }
+    closedir(dirp);
+    return false;
+}
+
+static
+char *get_file_in_dir(char **env_path, char const *file)
+{
+    static char dirpath[PATH_MAX];
+    char *tmp = my_strfind(*env_path, ':');
+    size_t offset = (tmp == NULL)
+        ? my_strlen(*env_path)
+        : (size_t)(tmp - *env_path);
+
+    my_strncpy(dirpath, *env_path, offset);
+    dirpath[offset] = '\0';
+    *env_path += offset + (tmp != NULL);
+    return (is_file_in_dir(dirpath, file))
+        ? get_fullpath(dirpath, file, dirpath)
+        : NULL;
+}
+
+static
+char *get_cmd_in_path(shell_t *shell, char const *cmd)
+{
+    env_variable_t *env_path;
+    char *fullpath;
+
+    if (cmd == NULL)
+        return NULL;
+    env_path = my_getenv(shell, "PATH");
+    if (env_path == NULL) {
+        ret_perror("mysh", "variable 'PATH' missing.");
+        return NULL;
+    }
+    for (char *ptr = env_path->value; *ptr;) {
+        fullpath = get_file_in_dir(&ptr, cmd);
+        if (fullpath != NULL)
+            return fullpath;
+    }
+    return NULL;
 }
 
 static

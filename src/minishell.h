@@ -81,12 +81,8 @@ int execute(shell_t *shell);
  * Get a variable in the environment, and return the value.
  * Searches: "$(variable)=*"
  */
-char *my_getenv(shell_t *shell, char const *variable);
+env_variable_t *my_getenv(shell_t *shell, char const *variable);
 
-/*
- * Get the fullpath of the cmd if found the the PATH variable.
- **/
-char *get_cmd_in_path(shell_t *shell, char const *cmd);
 
 /*
  * Init shell.env variables with char **env
