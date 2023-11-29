@@ -72,7 +72,7 @@ char *get_file_in_dir(char **env_path, char const *file)
 static
 char *get_cmd_in_path(shell_t *shell, char const *cmd)
 {
-    env_variable_t *env_path;
+    char *env_path;
     char *fullpath;
 
     if (cmd == NULL)
@@ -82,7 +82,7 @@ char *get_cmd_in_path(shell_t *shell, char const *cmd)
         ret_perror("mysh", "variable 'PATH' missing.");
         return NULL;
     }
-    for (char *ptr = (char *)shell->env.variables + env_path->value; *ptr;) {
+    for (char *ptr = env_path; *ptr;) {
         fullpath = get_file_in_dir(&ptr, cmd);
         if (fullpath != NULL)
             return fullpath;

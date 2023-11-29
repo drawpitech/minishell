@@ -36,6 +36,7 @@ typedef struct {
     char working_dir[PATH_MAX];
     bool is_running;
     struct {
+        char *ptr;
         env_variable_t *variables;
         size_t count;
         size_t allocated;
@@ -82,8 +83,10 @@ int execute(shell_t *shell);
  * Get a variable in the environment, and return the value.
  * Searches: "$(variable)=*"
  */
-env_variable_t *my_getenv(shell_t *shell, char const *variable);
-
+env_variable_t *my_getenv_var(shell_t *shell, char const *variable);
+char *my_getenv(shell_t *shell, char const *variable);
+int my_unsetenv(shell_t *shell, char const *variable);
+int my_setenv(shell_t *shell, char const *key, char const *data);
 
 /*
  * Init shell.env variables with char **env

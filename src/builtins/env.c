@@ -17,7 +17,7 @@ int builtin_env(shell_t *shell, UNUSED char **argv)
 
     if (shell == NULL)
         return SH_CODE_GENERAL_ERROR;
-    ptr = (char *)shell->env.variables;
+    ptr = shell->env.ptr;
     for (size_t i = 0; i < shell->env.count; i++) {
         var = shell->env.variables + i;
         if (var->key == 0)
@@ -30,17 +30,16 @@ int builtin_env(shell_t *shell, UNUSED char **argv)
 int builtin_unsetenv(shell_t *shell, char **argv)
 {
     char *key;
-    env_variable_t *var;
+    int ret;
 
     if (shell == NULL || argv == NULL || argv[0] == NULL || argv[1] == NULL)
         return SH_CODE_GENERAL_ERROR;
     key = argv[1];
-    var = my_getenv(shell, key);
-    if (var == NULL) {
+    ret = my_unsetenv(shell, key);
+    if (ret == RET_ERROR) {
         ret_perror("unsetenv", "cannot find variable `%s`\n", key);
         return SH_CODE_GENERAL_ERROR;
     }
-    var->key = 0;
-    DEBUG("Unset env variable `%s`", argv[1]);
+    DEBUG("Unset env variable `%s`", key);
     return SH_CODE_SUCCES;
 }
