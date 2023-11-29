@@ -43,3 +43,21 @@ int builtin_unsetenv(shell_t *shell, char **argv)
     DEBUG("Unset env variable `%s`", key);
     return SH_CODE_SUCCES;
 }
+
+int builtin_getenv(shell_t *shell, char **argv)
+{
+    char *key;
+    char *val;
+
+    if (shell == NULL || argv == NULL || argv[0] == NULL || argv[1] == NULL)
+        return SH_CODE_GENERAL_ERROR;
+    key = argv[1];
+    val = my_getenv(shell, key);
+    if (val == NULL) {
+        ret_perror("getenv", "cannot find variable `%s`\n", key);
+        return SH_CODE_GENERAL_ERROR;
+    }
+    DEBUG("Get env variable `%s`", key);
+    my_printf("%s\n", val);
+    return SH_CODE_SUCCES;
+}

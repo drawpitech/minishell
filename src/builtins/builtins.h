@@ -17,6 +17,7 @@ typedef int (builtin_cmd_t)(shell_t *, char **);
 int builtin_exit(shell_t *shell, char **argv);
 int builtin_env(shell_t *shell, char **argv);
 int builtin_unsetenv(shell_t *shell, char **argv);
+int builtin_getenv(shell_t *shell, char **argv);
 
 /*
  * Get the builtin corresponding to the string cmd.
@@ -30,6 +31,7 @@ static const struct {
     { "exit", &builtin_exit },
     { "env", &builtin_env },
     { "unsetenv", &builtin_unsetenv },
+    { "getenv", &builtin_getenv },
     { NULL, NULL },
 };
 
