@@ -57,32 +57,46 @@ int my_unsetenv(shell_t *shell, char const *variable)
     return RET_VALID;
 }
 
-int my_setenv(shell_t *shell, char const *key, char const *data)
+static
+void fill_env_var(
+    shell_t *shell, env_variable_t *var,
+    char const *key, char const *data)
 {
-    size_t new_size;
-    char *ptr;
-    env_variable_t *var;
+    char *ptr = shell->env.data + shell->env.alloc_data;
 
-    if (shell == NULL || key == NULL || data == NULL)
-        return RET_ERROR;
-    my_unsetenv(shell, key);
-    new_size = shell->env.alloc_data + my_strlen(key) + my_strlen(data) + 2;
-    shell->env.variables = my_reallocarray(shell->env.variables, shell->env.count + 1, shell->env.count, sizeof(env_variable_t));
-    shell->env.data = my_reallocarray(shell->env.data, new_size, shell->env.alloc_data, sizeof(char));
-    ptr = shell->env.data + shell->env.alloc_data;
-    var = shell->env.variables + shell->env.count;
     var->key = ptr - (char *)shell->env.data;
     my_strapp(&ptr, key);
     ptr += 1;
     var->value = ptr - (char *)shell->env.data;
     my_strapp(&ptr, data);
+}
+
+int my_setenv(shell_t *shell, char const *key, char const *data)
+{
+    size_t new_size;
+
+    if (shell == NULL || key == NULL || data == NULL)
+        return RET_ERROR;
+    my_unsetenv(shell, key);
+    new_size = shell->env.alloc_data + my_strlen(key) + my_strlen(data) + 2;
+    shell->env.variables = my_reallocarray(
+        shell->env.variables, shell->env.count + 1,
+        shell->env.count, sizeof(env_variable_t));
+    shell->env.data = my_reallocarray(
+        shell->env.data, new_size,
+        shell->env.alloc_data, sizeof(char));
+    fill_env_var(shell, shell->env.variables + shell->env.count, key, data);
     shell->env.alloc_data = new_size;
     shell->env.count += 1;
     return RET_VALID;
 }
 
 static
-int add_env_variable(shell_t *shell, char *const *env, size_t *offset, size_t i)
+int add_env_variable(
+    shell_t *shell,
+    char *const *env,
+    size_t *offset,
+    size_t i)
 {
     char *ptr;
 
