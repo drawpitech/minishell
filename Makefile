@@ -36,6 +36,7 @@ SRC += env/envp.c
 SRC += builtins/builtins.c
 SRC += builtins/exit.c
 SRC += builtins/env.c
+SRC += builtins/cd.c
 
 # Tests files
 VPATH += tests
