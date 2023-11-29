@@ -15,15 +15,22 @@
 static
 char const *cd_get_fullpath(shell_t *shell, char const *direction, char *buf)
 {
-    char *tmp;
+    char *home = my_getenv(shell, "HOME");
 
     if (direction == NULL) {
-        tmp = my_getenv(shell, "HOME");
-        if (tmp == NULL) {
-            ret_perror("cd", "PWD not set");
+        if (home == NULL) {
+            ret_perror("cd", "HOME not set");
             return NULL;
         }
-        return tmp;
+        return home;
+    }
+    if (direction[0] == '~') {
+        if (home == NULL) {
+            ret_perror("cd", "HOME not set");
+            return NULL;
+        }
+        get_fullpath(home, direction + 2, buf);
+        return buf;
     }
     get_fullpath(getcwd(buf, PATH_MAX), direction, buf);
     return buf;
