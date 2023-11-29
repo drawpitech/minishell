@@ -40,7 +40,6 @@ typedef struct {
         size_t alloc_data;
         env_variable_t *variables;
         size_t count;
-        size_t allocated;
     } env;
     prompt_t prompt;
     bool isatty;
