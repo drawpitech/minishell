@@ -26,5 +26,7 @@ void clear_shell(shell_t *shell)
     clear_prompt(&shell->prompt);
     if (shell->env.variables != NULL)
         free(shell->env.variables);
+    if (shell->env.data != NULL)
+        free(shell->env.data);
     *shell = (shell_t){ 0 };
 }

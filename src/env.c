@@ -22,7 +22,7 @@ env_variable_t *my_getenv_var(shell_t *shell, char const *variable)
 
     if (shell == NULL || variable == NULL)
         return NULL;
-    ptr = shell->env.ptr;
+    ptr = shell->env.data;
     for (size_t i = 0; i < shell->env.count; i++) {
         if (shell->env.variables[i].key == (size_t)-1)
             continue;
@@ -41,7 +41,7 @@ char *my_getenv(shell_t *shell, char const *variable)
     var = my_getenv_var(shell, variable);
     if (var == NULL)
         return NULL;
-    return shell->env.ptr + var->value;
+    return shell->env.data + var->value;
 }
 
 int my_unsetenv(shell_t *shell, char const *variable)
@@ -62,15 +62,15 @@ int add_env_variable(shell_t *shell, char *const *env, size_t *offset, size_t i)
 {
     char *ptr;
 
-    my_strcpy(shell->env.ptr + *offset, env[i]);
+    my_strcpy(shell->env.data + *offset, env[i]);
     shell->env.variables[i].key = *offset;
-    ptr = my_strfind(shell->env.ptr + *offset, '=');
+    ptr = my_strfind(shell->env.data + *offset, '=');
     if (ptr == NULL)
         return RET_ERROR;
     *ptr = '\0';
-    *offset = ptr - shell->env.ptr;
+    *offset = ptr - shell->env.data;
     shell->env.variables[i].value = *offset + 1;
-    *offset += my_strlen(shell->env.ptr + *offset + 1) + 2;
+    *offset += my_strlen(shell->env.data + *offset + 1) + 2;
     return RET_VALID;
 }
 
@@ -84,13 +84,13 @@ int init_env(shell_t *shell, char *const *env)
         return RET_VALID;
     for (size = 0; env[size] != NULL; size++)
         alloc_str += my_strlen(env[size]) + 1;
-    shell->env.allocated = (size + 1) * sizeof(env_variable_t)
-        + (alloc_str + 1) * sizeof(char);
+    shell->env.allocated = (size + 1) * sizeof(env_variable_t);
     shell->env.variables = malloc(shell->env.allocated);
-    if (shell->env.variables == NULL)
+    shell->env.alloc_data = (alloc_str + 1) * sizeof(char);
+    shell->env.data = malloc(shell->env.alloc_data);
+    if (shell->env.variables == NULL || shell->env.data == NULL)
         return RET_ERROR;
     offset = 0;
-    shell->env.ptr = (char *)shell->env.variables + (size + 1) * sizeof(env_variable_t);
     shell->env.count = size;
     for (size_t i = 0; i < shell->env.count; i++)
         if (add_env_variable(shell, env, &offset, i) == RET_ERROR)
@@ -107,9 +107,9 @@ void append_env_var(shell_t *shell, char ***envptr, size_t i, char **pool)
         return;
     **envptr = *pool;
     *envptr += 1;
-    my_strapp(pool, shell->env.ptr + var->key);
+    my_strapp(pool, shell->env.data + var->key);
     my_strapp(pool, "=");
-    my_strapp(pool, shell->env.ptr + var->value);
+    my_strapp(pool, shell->env.data + var->value);
     *pool += 1;
 }
 
@@ -123,8 +123,8 @@ char **get_envp(shell_t *shell)
     if (shell == NULL)
         return NULL;
     for (size_t i = 0; i < shell->env.count; i++)
-        size += my_strlen(shell->env.ptr + shell->env.variables[i].key)
-            + my_strlen(shell->env.ptr + shell->env.variables[i].value) + 2;
+        size += my_strlen(shell->env.data + shell->env.variables[i].key)
+            + my_strlen(shell->env.data + shell->env.variables[i].value) + 2;
     envp = malloc((shell->env.count + 1) * sizeof(char *)
         + (size + 1) * sizeof(char));
     envptr = envp;

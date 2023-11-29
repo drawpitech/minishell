@@ -17,10 +17,10 @@ int builtin_env(shell_t *shell, UNUSED char **argv)
 
     if (shell == NULL)
         return SH_CODE_GENERAL_ERROR;
-    ptr = shell->env.ptr;
+    ptr = shell->env.data;
     for (size_t i = 0; i < shell->env.count; i++) {
         var = shell->env.variables + i;
-        if (var->key == 0)
+        if (var->key == (size_t)-1)
             continue;
         my_printf("%s=%s\n", ptr + var->key, ptr + var->value);
     }

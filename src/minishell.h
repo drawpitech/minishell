@@ -36,7 +36,8 @@ typedef struct {
     char working_dir[PATH_MAX];
     bool is_running;
     struct {
-        char *ptr;
+        char *data;
+        size_t alloc_data;
         env_variable_t *variables;
         size_t count;
         size_t allocated;
