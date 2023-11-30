@@ -50,7 +50,7 @@ int builtin_cd(shell_t *shell, char **argv)
     DEBUG("cd to `%s`", path);
     ret = chdir(path);
     if (ret == -1)
-        return ret_perror("cd", NULL);
+        return ret_perror(argv[1], NULL);
     my_setenv(shell, "PWD", getcwd(buf, PATH_MAX));
     return SH_CODE_SUCCES;
 }

@@ -30,7 +30,7 @@ int ret_perror(char const *name, char const *format, ...)
     char *str;
 
     if (format == NULL)
-        return ret_perror(name, "%s\n", strerror(errno));
+        return ret_perror(name, "%s.\n", strerror(errno));
     va_start(ap, format);
     my_vasprintf(&str, format, ap);
     va_end(ap);
