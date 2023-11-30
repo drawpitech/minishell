@@ -59,7 +59,7 @@ token_t *parser_next_token(char **ptr, token_t *tok)
     end = get_end(&start, &is_quoted);
     if (end == NULL || *start == '\0')
         return NULL;
-    *ptr = end + (long)(is_quoted * 2);
+    *ptr = end + (long)(is_quoted);
     *tok = (token_t){
         .ptr = start,
         .size = end - start,
