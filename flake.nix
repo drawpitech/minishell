@@ -24,6 +24,7 @@
 
           makeFlags = [ "CC=${cc}/bin/gcc" ];
           buildInputs = deps;
+          nativeBuildInputs = with pkgs; [ tcsh ];
 
           hardeningDisable = [ "format" "fortify" ];
           enableParallelBuilding = true;
