@@ -75,6 +75,8 @@ void shell_prompt(shell_t *shell)
 static
 int get_params(shell_t *shell, int argc, char *const *argv)
 {
+    int ret;
+
     if (argc != 3)
         return ret_perror("mysh", "invalid arguments\n");
     if (my_strcmp(argv[1], "-c") != 0)
@@ -85,8 +87,9 @@ int get_params(shell_t *shell, int argc, char *const *argv)
     if (execute(shell) == RET_ERROR)
         return RET_ERROR;
     shell->prompt.line = NULL;
+    ret = shell->last_exit_code;
     clear_shell(shell);
-    return RET_VALID;
+    return ret;
 }
 
 int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
