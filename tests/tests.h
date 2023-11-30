@@ -1,8 +1,8 @@
 /*
 ** EPITECH PROJECT, 2023
-** my_ls
+** minishell
 ** File description:
-** my_ls
+** tests
 */
 
 #ifndef TEST_LS
