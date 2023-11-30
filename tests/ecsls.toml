@@ -1,0 +1,3 @@
+[reports]
+ignore = [ "C-F2", "C-O3", "C-F6", "C-L3", "C-L4" ]
+merge = "multiline"

@@ -41,6 +41,7 @@ SRC += builtins/cd.c
 # Tests files
 VPATH += tests
 TEST_SRC := $(SRC)
+TEST_SRC += test_working.c
 
 SRC += main.c
 
