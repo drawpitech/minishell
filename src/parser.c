@@ -15,7 +15,7 @@ static
 char *find_the_end_of_this(char *start)
 {
     for (; *start != '\0'
-        && *start != ' '
+        && (*start != ' ' && *start != '\t')
         && *start != '\n'
         ; start++);
     return start;
@@ -54,7 +54,7 @@ token_t *parser_next_token(char **ptr, token_t *tok)
 
     if (ptr == NULL || tok == NULL)
         return NULL;
-    for (; **ptr == ' ' || **ptr == '\n'; *ptr += 1);
+    for (; **ptr == ' ' || **ptr == '\n' || **ptr == '\t'; *ptr += 1);
     start = *ptr;
     end = get_end(&start, &is_quoted);
     if (end == NULL || *start == '\0')
