@@ -13,7 +13,7 @@
 
     #include <stdio.h>
 
-    #define TCSH(cmd) get_stdout("sh -c \"" #cmd "\"")
+    #define SH(cmd) get_stdout("sh -c \"" #cmd "\"")
     #define ENVP environ
 
 extern char **environ;
