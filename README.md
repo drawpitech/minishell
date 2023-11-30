@@ -16,6 +16,11 @@ This is a school project I have done at [EPITECH](https://epitech.eu) as a
 - `exit`
 
 
+## Parameters
+
+- `-c [cmd]` run a specific command
+
+
 ## Compilation
 
 ```sh

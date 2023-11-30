@@ -72,6 +72,23 @@ void shell_prompt(shell_t *shell)
         return;
 }
 
+static
+int get_params(shell_t *shell, int argc, char *const *argv)
+{
+    if (argc != 3)
+        return ret_perror("mysh", "invalid arguments\n");
+    if (my_strcmp(argv[1], "-c") != 0)
+        return ret_perror("mysh", "unknow arguments `%s`\n", argv[1]);
+    shell->prompt.line = argv[2];
+    if (tokenize(shell) == NULL)
+        return RET_ERROR;
+    if (execute(shell) == RET_ERROR)
+        return RET_ERROR;
+    shell->prompt.line = NULL;
+    clear_shell(shell);
+    return RET_VALID;
+}
+
 int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
 {
     shell_t shell = { 0 };
@@ -80,6 +97,8 @@ int minishell(UNUSED int argc, UNUSED char *const *argv, char **env)
         clear_shell(&shell);
         return RET_ERROR;
     }
+    if (argc != 1)
+        return get_params(&shell, argc, argv);
     shell.is_running = true;
     shell.isatty = isatty(STDIN_FILENO);
     while (shell.is_running) {
