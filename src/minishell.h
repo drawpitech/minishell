@@ -12,9 +12,21 @@
     #include <stdbool.h>
     #include <stddef.h>
 
+typedef enum {
+    EXPR,
+    NONE,
+    PIPE,
+    SEMICOLON,
+    REDIRECT_INPUT,
+    REDIRECT_OUTPUT,
+    REDIRECT_HERE_DOCUMENT,
+    REDIRECT_APPEND_OUTOUT,
+} token_type_t;
+
 typedef struct {
     char const *ptr;
     size_t size;
+    token_type_t type;
 } token_t;
 
 typedef struct {
@@ -94,5 +106,6 @@ int my_setenv(shell_t *shell, char const *key, char const *data);
 int init_env(shell_t *shell, char *const *env);
 
 char **get_envp(shell_t *shell);
+char **create_argv(prompt_t const *prompt);
 
 #endif /* MINISHELL_H_ */

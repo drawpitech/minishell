@@ -10,7 +10,7 @@
 #include "../minishell.h"
 
 static
-char *get_word(char **start)
+char *get_word(char *const *start)
 {
     char *end = *start;
 
@@ -18,6 +18,10 @@ char *get_word(char **start)
         && *end != ' '
         && *end != '\t'
         && *end != '\n'
+        && *end != '|'
+        && *end != ';'
+        && *end != '<'
+        && *end != '>'
         ) {
         if (*end == '\'' || *end == '"')
             end = my_strfind(end + 1, *end);
@@ -27,29 +31,63 @@ char *get_word(char **start)
 }
 
 static
-char *get_end(char **start)
+token_type_t parse_redirection(char c, char **ptr)
 {
-    char *end = NULL;
+    switch (c) {
+        case '|':
+            (*ptr) += 1;
+            return PIPE;
+        case ';':
+            (*ptr) += 1;
+            return SEMICOLON;
+        case '<':
+            if ((*ptr)[1] == (*ptr)[0]) {
+                *ptr += 2;
+                return REDIRECT_HERE_DOCUMENT;
+            }
+            *ptr += 1;
+            return REDIRECT_INPUT;
+        default:
+            return NONE;
+    }
+}
 
-    if (**start == '\0')
-        return NULL;
-    end = get_word(start);
-    return (end == NULL)
-        ? *start + my_strlen(*start)
-        : end + (*end == '\'' || *end == '"');
+static
+token_type_t get_end(char **ptr)
+{
+    char *tmp;
+
+    switch ((*ptr)[0]) {
+        case '\0':
+            return NONE;
+        case ';':
+        case '|':
+        case '<':
+            return parse_redirection((*ptr)[0], ptr);
+        case '>':
+            return parse_redirection('<', ptr) + 2;
+        default:
+            tmp = get_word(ptr);
+            *ptr = (tmp == NULL)
+                ? *ptr + my_strlen(*ptr)
+                : tmp + (*tmp == '\'' || *tmp == '"');
+            return EXPR;
+    }
 }
 
 token_t *parser_next_token(char **ptr, token_t *tok)
 {
     char *start = NULL;
     char *end = NULL;
+    token_type_t type;
 
     if (ptr == NULL || tok == NULL)
         return NULL;
     for (; **ptr == ' ' || **ptr == '\n' || **ptr == '\t'; *ptr += 1);
     start = *ptr;
-    end = get_end(&start);
-    if (end == NULL || *start == '\0')
+    end = start;
+    type = get_end(&end);
+    if (type == NONE || end == NULL || *start == '\0')
         return NULL;
     *ptr = end;
     *tok = (token_t){
