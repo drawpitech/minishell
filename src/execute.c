@@ -21,16 +21,6 @@
 #include "minishell.h"
 
 static
-size_t sum_length(prompt_t const *prompt)
-{
-    size_t sum = prompt->tokens.nbr;
-
-    for (size_t i = 0; i < prompt->tokens.nbr; i++)
-        sum += prompt->tokens.tok[i].size;
-    return sum;
-}
-
-static
 bool is_file_in_dir(char const *dir, char const *file)
 {
     struct dirent *dirent = NOT_NULL;
@@ -88,27 +78,6 @@ char *get_cmd_in_path(shell_t *shell, char const *cmd)
             return fullpath;
     }
     return NULL;
-}
-
-static
-char **create_argv(prompt_t const *prompt)
-{
-    token_t *tokens = prompt->tokens.tok;
-    size_t offset_argv = (prompt->tokens.nbr + 1) * sizeof(char *);
-    char **argv = malloc(offset_argv + sum_length(prompt) * sizeof(char));
-    char *ptr;
-
-    if (argv == NULL)
-        return NULL;
-    ptr = (char *)argv + offset_argv;
-    for (size_t i = 0; i < prompt->tokens.nbr; i++) {
-        argv[i] = ptr;
-        my_strncpy(ptr, tokens[i].ptr, tokens[i].size);
-        ptr[tokens[i].size] = '\0';
-        ptr += tokens[i].size + 1;
-    }
-    argv[prompt->tokens.nbr] = NULL;
-    return argv;
 }
 
 static
