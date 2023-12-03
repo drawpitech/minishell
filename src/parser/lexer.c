@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2023
 ** minishell
 ** File description:
-** parser
+** lexer
 */
 
 #include "my.h"
