@@ -23,6 +23,7 @@ char *find_the_end_of_this(char *start)
 
 static
 char *get_end(char **start, bool *is_quoted)
+char *get_end(char **start)
 {
     char *end = NULL;
 
@@ -35,7 +36,6 @@ char *get_end(char **start, bool *is_quoted)
             if (end == NULL)
                 break;
             *start += 1;
-            *is_quoted = true;
             break;
         default:
             end = find_the_end_of_this(*start);
@@ -43,26 +43,25 @@ char *get_end(char **start, bool *is_quoted)
     }
     return (end == NULL)
         ? *start + my_strlen(*start)
-        : end;
+        : end + (*end == '\'' || *end == '"');
 }
 
 token_t *parser_next_token(char **ptr, token_t *tok)
 {
     char *start = NULL;
     char *end = NULL;
-    bool is_quoted = false;
 
     if (ptr == NULL || tok == NULL)
         return NULL;
     for (; **ptr == ' ' || **ptr == '\n' || **ptr == '\t'; *ptr += 1);
     start = *ptr;
-    end = get_end(&start, &is_quoted);
+    end = get_end(&start);
     if (end == NULL || *start == '\0')
         return NULL;
-    *ptr = end + (long)(is_quoted);
+    *ptr = end;
     *tok = (token_t){
         .ptr = start,
-        .size = end - start,
+        .size = end - start - (end[-1] == '\'' || end[-1] == '"'),
     };
     return tok;
 }
