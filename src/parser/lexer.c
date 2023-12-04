@@ -93,6 +93,7 @@ token_t *parser_next_token(char **ptr, token_t *tok)
     *tok = (token_t){
         .ptr = start,
         .size = end - start,
+        .type = type,
     };
     return tok;
 }

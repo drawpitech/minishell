@@ -23,6 +23,11 @@ typedef enum {
     REDIRECT_APPEND_OUTOUT,
 } token_type_t;
 
+typedef struct stack_s {
+    char **argv;
+    token_type_t type;
+} cmd_stack_t;
+
 typedef struct {
     char const *ptr;
     size_t size;
@@ -106,6 +111,6 @@ int my_setenv(shell_t *shell, char const *key, char const *data);
 int init_env(shell_t *shell, char *const *env);
 
 char **get_envp(shell_t *shell);
-char **create_argv(prompt_t const *prompt);
+cmd_stack_t *create_stack(size_t nbr, token_t tokens[nbr]);
 
 #endif /* MINISHELL_H_ */

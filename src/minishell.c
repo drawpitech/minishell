@@ -50,14 +50,16 @@ token_t *tokenize(shell_t *shell)
     char *ptr = prompt->line;
 
     while (parser_next_token(&ptr, &tok) != NULL) {
-        DEBUG("token: [%s]; size: [%u]", tok.ptr, tok.size);
+        DEBUG("token: [%s]; size: %u; type: %d", tok.ptr, tok.size, tok.type);
         prompt->tokens.tok = my_reallocarray(
-            prompt->tokens.tok, prompt->tokens.nbr + 1,
+            prompt->tokens.tok, prompt->tokens.nbr + 2,
             prompt->tokens.nbr, sizeof(*prompt->tokens.tok)
         );
         my_memcpy(prompt->tokens.tok + prompt->tokens.nbr, &tok, sizeof(tok));
         prompt->tokens.nbr += 1;
     }
+    if (prompt->tokens.nbr)
+        prompt->tokens.tok[prompt->tokens.nbr].type = NONE;
     return prompt->tokens.tok;
 }
 

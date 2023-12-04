@@ -162,15 +162,18 @@ int run_command(shell_t *shell, char **argv)
 
 int execute(shell_t *shell)
 {
-    char **argv;
+    cmd_stack_t *stack;
 
     if (shell == NULL)
         return RET_ERROR;
     if (shell->prompt.tokens.nbr == 0)
         return RET_VALID;
-    argv = create_argv(&shell->prompt);
-    if (argv == NULL)
-        return RET_ERROR;
-    shell->last_exit_code = run_command(shell, argv);
+    stack = create_stack(shell->prompt.tokens.nbr, shell->prompt.tokens.tok);
+    for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++) {
+        if (ptr->argv == NULL)
+            continue;
+        shell->last_exit_code = run_command(shell, ptr->argv);
+    }
+    free(stack);
     return RET_VALID;
 }

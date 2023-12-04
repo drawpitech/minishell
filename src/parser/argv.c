@@ -11,12 +11,12 @@
 #include "../minishell.h"
 
 static
-size_t sum_length(prompt_t const *prompt)
+size_t sum_length(token_t tokens[])
 {
-    size_t sum = prompt->tokens.nbr;
+    size_t sum = 0;
 
-    for (size_t i = 0; i < prompt->tokens.nbr; i++)
-        sum += prompt->tokens.tok[i].size;
+    for (; tokens->type == EXPR; tokens++)
+        sum += (tokens->size + 1) * sizeof(char);
     return sum;
 }
 
@@ -55,23 +55,57 @@ void create_arg(token_t const *token, char *ptr)
     *ptr = '\0';
 }
 
-char **create_argv(prompt_t const *prompt)
+static
+size_t count_tokens(token_t tokens[])
 {
-    token_t *tokens = prompt->tokens.tok;
-    size_t offset_argv = (prompt->tokens.nbr + 1) * sizeof(char *);
-    char **argv = malloc(offset_argv + sum_length(prompt) * sizeof(char));
+    size_t size = 0;
+
+    for (; tokens[size].type == EXPR; size++);
+    return size;
+}
+
+static
+char **create_argv(token_t *tokens[])
+{
+    size_t off_tokens = (1 + count_tokens(*tokens)) * sizeof(char *);
+    char **argv = malloc(sum_length(*tokens) + off_tokens);
     char *ptr;
+    size_t i = 0;
 
     if (argv == NULL)
         return NULL;
-    ptr = (char *)argv + offset_argv;
-    for (size_t i = 0; i < prompt->tokens.nbr; i++) {
+    ptr = (char *)argv + off_tokens;
+    for (; (*tokens)->type == EXPR; i++) {
         argv[i] = ptr;
-        create_arg(tokens + i, ptr);
-        ptr += tokens[i].size + 1;
+        create_arg(*tokens, ptr);
+        ptr += (*tokens)->size + 1;
+        *tokens += 1;
     }
-    argv[prompt->tokens.nbr] = NULL;
-    for (int i = 0; argv[i] != NULL; i++)
+    argv[i] = NULL;
+    for (i = 0; argv[i] != NULL; i++)
         DEBUG("argv[%d]: `%s`", i, argv[i]);
     return argv;
+}
+
+cmd_stack_t *create_stack(size_t nbr, token_t tokens[nbr])
+{
+    cmd_stack_t *stack = malloc((nbr + 1) * sizeof(cmd_stack_t));
+    size_t size = 0;
+
+    for (; tokens->type != NONE; size++) {
+        if (tokens->type == EXPR) {
+            stack[size] = (cmd_stack_t){
+                .type = EXPR,
+                .argv = create_argv(&tokens),
+            };
+            continue;
+        }
+        stack[size] = (cmd_stack_t){
+            .type = tokens->type,
+            .argv = NULL,
+        };
+        tokens += 1;
+    }
+    stack[size] = (cmd_stack_t){.type = NONE, .argv = NULL };
+    return stack;
 }
