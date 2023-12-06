@@ -10,11 +10,12 @@
 #include "../minishell.h"
 
 static
-char *get_word(char *const *start)
+char *get_word(char *start)
 {
-    char *end = *start;
+    char *end = start;
 
-    while (*end != '\0'
+    while (end != NULL
+        && *end != '\0'
         && *end != ' '
         && *end != '\t'
         && *end != '\n'
@@ -25,7 +26,8 @@ char *get_word(char *const *start)
         ) {
         if (*end == '\'' || *end == '"')
             end = my_strfind(end + 1, *end);
-        end += 1;
+        if (end != NULL)
+            end += 1;
     }
     return end;
 }
@@ -67,9 +69,9 @@ token_type_t get_end(char **ptr)
         case '>':
             return parse_redirection('<', ptr) + 2;
         default:
-            tmp = get_word(ptr);
+            tmp = get_word(*ptr);
             *ptr = (tmp == NULL)
-                ? *ptr + my_strlen(*ptr)
+                ? NULL
                 : tmp + (*tmp == '\'' || *tmp == '"');
             return EXPR;
     }
