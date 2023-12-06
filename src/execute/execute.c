@@ -95,7 +95,6 @@ int execute(shell_t *shell)
             case EXPR:
                 shell->last_exit_code = run_command(shell, &ptr);
                 continue;
-            case SEMICOLON:
             default:
                 continue;
         }

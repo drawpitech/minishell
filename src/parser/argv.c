@@ -94,18 +94,13 @@ cmd_stack_t *create_stack(size_t nbr, token_t tokens[nbr])
 
     for (; tokens->type != NONE; size++) {
         if (tokens->type == EXPR) {
-            stack[size] = (cmd_stack_t){
-                .type = EXPR,
-                .argv = create_argv(&tokens),
-            };
+            stack[size] = (cmd_stack_t){ create_argv(&tokens), EXPR };
             continue;
         }
-        stack[size] = (cmd_stack_t){
-            .type = tokens->type,
-            .argv = NULL,
-        };
+        if (tokens->type != SEMICOLON)
+            stack[size] = (cmd_stack_t){ NULL, tokens->type };
         tokens += 1;
     }
-    stack[size] = (cmd_stack_t){.type = NONE, .argv = NULL };
+    stack[size] = (cmd_stack_t){ NULL, NONE };
     return stack;
 }
