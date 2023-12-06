@@ -7,7 +7,7 @@
 
 #include "my.h"
 
-#include "../minishell.h"
+#include "minishell.h"
 
 static
 char *get_word(char *start)

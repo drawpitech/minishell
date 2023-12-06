@@ -8,7 +8,7 @@
 #include "my.h"
 
 #include "../debug.h"
-#include "../minishell.h"
+#include "execute.h"
 
 static
 size_t sum_length(token_t tokens[])
