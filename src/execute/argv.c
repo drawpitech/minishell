@@ -64,7 +64,6 @@ size_t count_tokens(token_t tokens[])
     return size;
 }
 
-static
 char **create_argv(token_t *tokens[])
 {
     size_t off_tokens = (1 + count_tokens(*tokens)) * sizeof(char *);
@@ -85,22 +84,4 @@ char **create_argv(token_t *tokens[])
     for (i = 0; argv[i] != NULL; i++)
         DEBUG("argv[%d]: `%s`", i, argv[i]);
     return argv;
-}
-
-cmd_stack_t *create_stack(size_t nbr, token_t tokens[nbr])
-{
-    cmd_stack_t *stack = malloc((nbr + 1) * sizeof(cmd_stack_t));
-    size_t size = 0;
-
-    for (; tokens->type != NONE; size++) {
-        if (tokens->type == EXPR) {
-            stack[size] = (cmd_stack_t){ create_argv(&tokens), EXPR };
-            continue;
-        }
-        if (tokens->type != SEMICOLON)
-            stack[size] = (cmd_stack_t){ NULL, tokens->type };
-        tokens += 1;
-    }
-    stack[size] = (cmd_stack_t){ NULL, NONE };
-    return stack;
 }

@@ -99,7 +99,7 @@ bool is_stack_valid(cmd_stack_t *stack)
     my_dprintf(STDERR_FILENO, (stack[i].type == PIPE)
         ? "Invalid null command.\n"
         : "Missing name for redirect.\n");
-    free(stack);
+    free_stack(stack);
     return false;
 }
 
