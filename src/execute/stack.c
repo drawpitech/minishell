@@ -14,7 +14,7 @@ void free_stack(cmd_stack_t *stack)
     if (stack == NULL)
         return;
     for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++)
-        if (ptr->argv != NULL)
+        if (ptr->type == EXPR && ptr->argv != NULL)
             free(ptr->argv);
     free(stack);
 }

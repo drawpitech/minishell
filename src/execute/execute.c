@@ -94,22 +94,18 @@ int run_command(shell_t *shell, cmd_stack_t const *stack)
     if (builtin != NULL) {
         DEBUG("Running builtin %s", argv[0]);
         ret = builtin(shell, argv);
-        free(argv);
         return ret;
     }
     cmd = get_cmd(shell, argv[0]);
-    if (cmd == NULL) {
-        free(argv);
+    if (cmd == NULL)
         return SH_CODE_CMD_NOT_FOUND;
-    }
     DEBUG("Running %s", cmd);
     ret = run_external_cmd(shell, cmd, stack);
-    free(argv);
     return ret;
 }
 
 static
-bool is_stack_valid(cmd_stack_t const *stack)
+bool is_stack_valid(cmd_stack_t *stack)
 {
     int i = 0;
 
@@ -142,11 +138,12 @@ int execute(shell_t *shell)
     if (!is_stack_valid(stack))
         return RET_ERROR;
     for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++) {
+        DEBUG("%d", ptr->type);
         if (ptr->type == EXPR)
             shell->last_exit_code = run_command(shell, ptr);
         else
             ptr++;
     }
-    free(stack);
+    free_stack(stack);
     return RET_VALID;
 }
