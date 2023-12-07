@@ -36,14 +36,14 @@ int return_value(int wstatus)
 }
 
 static
-int cmd_redirect(cmd_stack_t **stack)
+int cmd_redirect(cmd_stack_t const *stack)
 {
     int fd;
     mode_t mode = S_IRUSR | S_IWUSR;
 
-    switch ((*stack)[1].type) {
+    switch (stack[1].type) {
         case REDIRECT_OUTPUT:
-            fd = open((*stack)[2].argv[0], O_WRONLY | O_TRUNC | O_CREAT, mode);
+            fd = open(stack[2].argv[0], O_WRONLY | O_TRUNC | O_CREAT, mode);
             dup2(fd, STDOUT_FILENO);
             return fd;
         case EXPR:
@@ -54,18 +54,18 @@ int cmd_redirect(cmd_stack_t **stack)
 }
 
 static
-void child_process(shell_t *shell, char const *cmd, cmd_stack_t **stack)
+void child_process(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
 {
     char **env;
 
     cmd_redirect(stack);
     shell->is_running = false;
     env = get_envp(shell);
-    execve(cmd, (*stack)->argv, env);
+    execve(cmd, stack->argv, env);
 }
 
 static
-int run_external_cmd(shell_t *shell, char const *cmd, cmd_stack_t **stack)
+int run_external_cmd(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
 {
     pid_t child_pid = fork();
     int wstatus;
@@ -84,11 +84,11 @@ int run_external_cmd(shell_t *shell, char const *cmd, cmd_stack_t **stack)
 }
 
 static
-int run_command(shell_t *shell, cmd_stack_t **stack)
+int run_command(shell_t *shell, cmd_stack_t const *stack)
 {
     char const *cmd;
     int ret;
-    char **argv = (*stack)->argv;
+    char **argv = stack->argv;
     builtin_cmd_t *builtin = get_builtin(argv[0]);
 
     if (builtin != NULL) {
@@ -109,7 +109,7 @@ int run_command(shell_t *shell, cmd_stack_t **stack)
 }
 
 static
-bool is_stack_valid(cmd_stack_t *stack)
+bool is_stack_valid(cmd_stack_t const *stack)
 {
     int i = 0;
 
@@ -143,7 +143,7 @@ int execute(shell_t *shell)
         return RET_ERROR;
     for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++) {
         if (ptr->type == EXPR)
-            shell->last_exit_code = run_command(shell, &ptr);
+            shell->last_exit_code = run_command(shell, ptr);
         else
             ptr++;
     }
