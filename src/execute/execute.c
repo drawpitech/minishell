@@ -142,14 +142,10 @@ int execute(shell_t *shell)
     if (!is_stack_valid(stack))
         return RET_ERROR;
     for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++) {
-        switch (ptr->type) {
-            case EXPR:
-                shell->last_exit_code = run_command(shell, &ptr);
-                continue;
-            default:
-                ptr++;
-                continue;
-        }
+        if (ptr->type == EXPR)
+            shell->last_exit_code = run_command(shell, &ptr);
+        else
+            ptr++;
     }
     free(stack);
     return RET_VALID;
