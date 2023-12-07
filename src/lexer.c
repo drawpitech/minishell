@@ -67,7 +67,7 @@ token_type_t get_end(char **ptr)
         case '<':
             return parse_redirection((*ptr)[0], ptr);
         case '>':
-            return parse_redirection('<', ptr) + 2;
+            return parse_redirection('<', ptr) + 1;
         default:
             tmp = get_word(*ptr);
             *ptr = (tmp == NULL)

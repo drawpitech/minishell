@@ -5,6 +5,8 @@
 ** execute
 */
 
+#include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -34,21 +36,46 @@ int return_value(int wstatus)
 }
 
 static
+int cmd_redirect(cmd_stack_t **stack)
+{
+    int fd;
+    mode_t mode = S_IRUSR | S_IWUSR;
+
+    switch ((*stack)[1].type) {
+        case REDIRECT_OUTPUT:
+            fd = open((*stack)[2].argv[0], O_WRONLY | O_TRUNC | O_CREAT, mode);
+            dup2(fd, STDOUT_FILENO);
+            return fd;
+        case EXPR:
+        case NONE:
+        default:
+            return 0;
+    }
+}
+
+static
+void child_process(shell_t *shell, char const *cmd, cmd_stack_t **stack)
+{
+    char **env;
+
+    cmd_redirect(stack);
+    shell->is_running = false;
+    env = get_envp(shell);
+    execve(cmd, (*stack)->argv, env);
+}
+
+static
 int run_external_cmd(shell_t *shell, char const *cmd, cmd_stack_t **stack)
 {
     pid_t child_pid = fork();
     int wstatus;
-    char **env;
 
     if (child_pid == -1) {
         ret_perror("minishell", NULL);
         return SH_CODE_GENERAL_ERROR;
     }
     if (child_pid == 0) {
-        shell->is_running = false;
-        env = get_envp(shell);
-        execve(cmd, (*stack)->argv, env);
-        free(env);
+        child_process(shell, cmd, stack);
     } else {
         wait(&wstatus);
         return return_value(wstatus);
@@ -120,6 +147,7 @@ int execute(shell_t *shell)
                 shell->last_exit_code = run_command(shell, &ptr);
                 continue;
             default:
+                ptr++;
                 continue;
         }
     }
