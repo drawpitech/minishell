@@ -69,12 +69,12 @@ int builtin_setenv(shell_t *shell, char **argv)
 
     if (shell == NULL || argv == NULL)
         return SH_CODE_GENERAL_ERROR;
-    if (argv[0] == NULL || argv[1] == NULL || argv[2] == NULL) {
+    if (argv[0] == NULL || argv[1] == NULL) {
         ret_perror("setenv", "invalid use\n\tsetenv [key] [value]\n");
         return SH_CODE_GENERAL_ERROR;
     }
     key = argv[1];
-    val = argv[2];
+    val = (argv[2] != NULL) ? argv[2] : "";
     if (my_setenv(shell, key, val) == RET_ERROR) {
         ret_perror("setenv", "cannot find variable `%s`\n", key);
         return SH_CODE_GENERAL_ERROR;
