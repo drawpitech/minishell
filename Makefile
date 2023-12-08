@@ -34,6 +34,7 @@ SRC += execute/execute.c
 SRC += execute/cmd_path.c
 SRC += execute/argv.c
 SRC += execute/stack.c
+SRC += execute/redirect.c
 SRC += env/env.c
 SRC += env/envp.c
 SRC += builtins/builtins.c
