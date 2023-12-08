@@ -10,6 +10,8 @@
 
     #include "../minishell.h"
 
+    #define IO_MODE (S_IRUSR | S_IWUSR)
+
 typedef struct stack_s {
     char **argv;
     token_type_t type;
