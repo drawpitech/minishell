@@ -29,18 +29,13 @@ int builtin_env(shell_t *shell, UNUSED char **argv)
 
 int builtin_unsetenv(shell_t *shell, char **argv)
 {
-    char *key;
-    int ret;
-
     if (shell == NULL || argv == NULL || argv[0] == NULL || argv[1] == NULL)
         return SH_CODE_GENERAL_ERROR;
-    key = argv[1];
-    ret = my_unsetenv(shell, key);
-    if (ret == RET_ERROR) {
-        ret_perror("unsetenv", "cannot find variable `%s`\n", key);
-        return SH_CODE_GENERAL_ERROR;
+    for (int i = 1; argv[i] != NULL; i++) {
+        DEBUG("Unset env variable `%s`", argv[i]);
+        if (my_unsetenv(shell, argv[i]) == RET_ERROR)
+            ret_perror("unsetenv", "cannot find variable `%s`\n", argv[i]);
     }
-    DEBUG("Unset env variable `%s`", key);
     return SH_CODE_SUCCES;
 }
 
