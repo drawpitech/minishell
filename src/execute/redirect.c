@@ -17,9 +17,10 @@ int redirect_pipe(shell_t *shell, cmd_stack_t const *stack)
 {
     int fd[2];
 
-    pipe(fd);
+    if (pipe(fd) == -1)
+        return ret_perror(stack->argv[0], "Invalid pipe.");
     shell->last_exit_code = run_command(shell, stack, fd);
-    return 0;
+    return RET_VALID;
 }
 
 static
@@ -27,9 +28,9 @@ int redirect_stdout(shell_t *shell, cmd_stack_t const *stack, int flag)
 {
     int fd = open(stack->argv[0], O_WRONLY | O_CREAT | flag, IO_MODE);
 
-    dup2(fd, STDOUT_FILENO);
-    cmd_redirect(shell, stack);
-    return fd;
+    if (fd == -1 || dup2(fd, STDOUT_FILENO) == -1)
+        return ret_perror(stack->argv[0], NULL);
+    return cmd_redirect(shell, stack);
 }
 
 static
@@ -41,12 +42,8 @@ int redirect_stdin(cmd_stack_t const *stack)
     char buff[buff_size + 1];
     ssize_t n;
 
-    if (file == -1) {
-        ret_perror(stack->argv[0], "No such file or directory.");
-        return -1;
-    }
-    pipe(fd);
-    dup2(fd[0], STDIN_FILENO);
+    if (file == -1 || pipe(fd) == -1 || dup2(fd[0], STDIN_FILENO) == -1)
+        return ret_perror(stack->argv[0], NULL);
     do {
         n = read(file, buff, buff_size);
         write(fd[1], buff, n);
@@ -54,7 +51,7 @@ int redirect_stdin(cmd_stack_t const *stack)
     close(file);
     close(fd[0]);
     close(fd[1]);
-    return 0;
+    return RET_VALID;
 }
 
 int cmd_redirect(shell_t *shell, cmd_stack_t const *stack)
@@ -71,6 +68,6 @@ int cmd_redirect(shell_t *shell, cmd_stack_t const *stack)
         case EXPR:
         case NONE:
         default:
-            return 0;
+            return RET_VALID;
     }
 }

@@ -46,8 +46,9 @@ void child_process(
         close(fd[1]);
         dup2(fd[0], STDIN_FILENO);
     }
-    cmd_redirect(shell, stack);
     shell->is_running = false;
+    if (cmd_redirect(shell, stack) == RET_ERROR)
+        return;
     env = get_envp(shell);
     execve(cmd, stack->argv, env);
 }
