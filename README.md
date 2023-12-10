@@ -8,12 +8,22 @@ An UNIX interactive command interpter.
 This is a school project I have done at [EPITECH](https://epitech.eu) as a
 **B3ed**. This is based on the minishell 1 and minishell 2 project.
 
+The goal is to make a working command line command interpreter, inspired by
+the TCSH project.
 
-## Supported builtins
 
+## Features
+
+### Builtins
 - `cd` and `pwd`
 - `env`, `setenv` and `unsetenv`
 - `exit`
+
+### Redirects
+- `[cmd]<file` Redirecting Input
+- `[cmd]>file` Redirecting Output
+- `[cmd]>>file` Appending Redirected Output
+- `[cmd]|[cmd]` Pipeline
 
 
 ## Parameters
@@ -32,9 +42,8 @@ make
 ./mysh
 ```
 
-Or on NixOS
+Or using Nix
 
 ```sh
-nix run github:drawpitech/minishell # Run directly
-nix shell github:drawpitech/minishell # Or add it to the shell
+nix run github:drawpitech/minishell
 ```
