@@ -15,7 +15,6 @@
 
 #include "my.h"
 
-static
 int return_value(int wstatus)
 {
     if (WIFEXITED(wstatus))
@@ -33,12 +32,11 @@ int return_value(int wstatus)
     return SH_CODE_SUCCES;
 }
 
-static
 void child_process(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
 {
     char **env;
 
-    cmd_redirect(stack);
+    cmd_redirect(shell, stack);
     shell->is_running = false;
     env = get_envp(shell);
     execve(cmd, stack->argv, env);
