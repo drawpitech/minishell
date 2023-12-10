@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2023
 ** minishell
 ** File description:
-** my
+** std
 */
 
 #ifndef LIBMY

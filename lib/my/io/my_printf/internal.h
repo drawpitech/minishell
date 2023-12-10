@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2023
 ** minishell
 ** File description:
-** my_printf
+** internal
 */
 
 #ifndef MY_PRINTF_H_

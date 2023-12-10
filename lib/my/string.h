@@ -1,8 +1,8 @@
 /*
 ** EPITECH PROJECT, 2023
-** ee
+** minishell
 ** File description:
-** ee
+** string
 */
 
 #ifndef MY_STRING_H_
