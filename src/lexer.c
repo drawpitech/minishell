@@ -5,7 +5,7 @@
 ** lexer
 */
 
-#include "my.h"
+#include "my/string.h"
 
 #include "minishell.h"
 

@@ -13,7 +13,7 @@ CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS += -Waggregate-return -Wcast-qual
 CFLAGS += -Wunreachable-code
 CFLAGS += -U_FORTIFY_SOURCE
-CFLAGS += -iquote ./include
+CFLAGS += -iquote ./lib
 
 # ↓ Binaries
 NAME := mysh
@@ -22,7 +22,7 @@ ASAN_NAME := asan
 PROF_NAME := prof
 
 # Libmy
-LIBMY := lib/libmy.a
+LIBMY := lib/my/libmy.a
 LDFLAGS := -L./$(dir $(LIBMY)) -lmy
 
 # Source files
@@ -81,7 +81,7 @@ all: $(NAME)
 
 # ↓ Compiling libmy
 $(LIBMY):
-	@ $(MAKE) -s -C $(dir $(LIBMY))/my
+	@ $(MAKE) -s -C $(dir $(LIBMY))
 
 libmy: $(LIBMY)
 
@@ -161,7 +161,7 @@ clean:
 fclean: clean
 	@ $(RM) $(NAME) $(TEST_NAME) $(ASAN_NAME) $(PROF_NAME)
 	@ $(RM) -r $(BUILD_DIR)
-	@ $(MAKE) -s -C $(dir $(LIBMY))/my fclean
+	@ $(MAKE) -s -C $(dir $(LIBMY)) fclean
 
 .PHONY: clean fclean
 

@@ -5,7 +5,7 @@
 ** my_is_prime
 */
 
-#include "my.h"
+#include "math.h"
 
 bool my_is_prime(int nb)
 {

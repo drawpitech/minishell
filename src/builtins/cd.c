@@ -7,9 +7,11 @@
 
 #include <unistd.h>
 
-#include "my.h"
+#include "my/io.h"
+#include "my/debug.h"
+#include "my/std.h"
+#include "my/string.h"
 
-#include "../debug.h"
 #include "builtins.h"
 
 static

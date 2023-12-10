@@ -5,9 +5,8 @@
 ** envp
 */
 
-#include <stddef.h>
-
-#include "my.h"
+#include "my/io.h"
+#include "my/string.h"
 
 #include "../minishell.h"
 

@@ -8,7 +8,7 @@
 #ifndef COLORS_H_
     #define COLORS_H_
 
-    #include "my.h"
+    #include "io.h"
 
     #define C_BG(color) ((color) + 10)
 

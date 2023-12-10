@@ -5,9 +5,10 @@
 ** env
 */
 
-#include "my.h"
+#include "my/debug.h"
+#include "my/io.h"
+#include "my/std.h"
 
-#include "../debug.h"
 #include "builtins.h"
 
 int builtin_env(shell_t *shell, UNUSED char **argv)

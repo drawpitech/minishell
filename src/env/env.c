@@ -5,16 +5,10 @@
 ** env
 */
 
-#include <dirent.h>
-#include <linux/limits.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
+#include "my/std.h"
+#include "my/string.h"
 
-#include "../debug.h"
 #include "../minishell.h"
-#include "my.h"
 
 env_variable_t *my_getenv_var(shell_t *shell, char const *variable)
 {

@@ -9,11 +9,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "../builtins/builtins.h"
-#include "../debug.h"
-#include "execute.h"
+#include "my/std.h"
+#include "my/debug.h"
 
-#include "my.h"
+#include "../builtins/builtins.h"
+#include "execute.h"
 
 static
 int return_value(int wstatus)

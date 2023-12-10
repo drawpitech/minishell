@@ -5,8 +5,9 @@
 ** clear
 */
 
-#include "minishell.h"
 #include <stdlib.h>
+
+#include "minishell.h"
 
 void clear_prompt(prompt_t *prompt)
 {

@@ -20,52 +20,56 @@ NAME := libmy.a
 
 # Source files
 VPATH := .
-SRC := my_putchar.c
-SRC += my_putstr.c
-SRC += reverse.c
-SRC += my_showmem.c
-SRC += my_showstr.c
-SRC += my_strcat.c
-SRC += my_strcmp.c
-SRC += my_strcpy.c
-SRC += my_strlen.c
-SRC += my_strstr.c
-SRC += my_strpbrk.c
-SRC += str_identify.c
-SRC += strcases.c
-SRC += str_to_int.c
-SRC += my_nbr_to_base.c
-SRC += my_strdup.c
-SRC += my_str_join.c
-SRC += my_show_word_array.c
-SRC += convert_base.c
-SRC += get_color.c
-SRC += my_nbr_len.c
-SRC += my_str_startswith.c
-SRC += return_err.c
-SRC += get_fullpath.c
-SRC += mem.c
-SRC += malloc.c
-SRC += qsort.c
-SRC += write_number.c
+SRC :=
 
+SRC += std/convert_base.c
+SRC += std/get_color.c
+SRC += std/malloc.c
+SRC += std/my_nbr_len.c
+SRC += std/qsort.c
+SRC += std/return_err.c
+SRC += std/swap.c
+
+SRC += string/get_fullpath.c
+SRC += string/mem.c
+SRC += string/my_nbr_to_base.c
+SRC += string/my_show_word_array.c
+SRC += string/my_showmem.c
+SRC += string/my_showstr.c
+SRC += string/my_str_join.c
+SRC += string/my_str_startswith.c
+SRC += string/my_strcat.c
+SRC += string/my_strcmp.c
+SRC += string/my_strcpy.c
+SRC += string/my_strdup.c
+SRC += string/my_strlen.c
+SRC += string/my_strpbrk.c
+SRC += string/my_strstr.c
+SRC += string/reverse.c
+SRC += string/str_identify.c
+SRC += string/str_to_int.c
+SRC += string/strcases.c
+SRC += string/write_number.c
+
+SRC += math/my_is_prime.c
 SRC += math/my_pow.c
 SRC += math/my_sqrt.c
-SRC += math/my_is_prime.c
 
-SRC += my_printf/families/printf.c
-SRC += my_printf/families/sprintf.c
-SRC += my_printf/families/asprintf.c
-SRC += my_printf/families/dprintf.c
-SRC += my_printf/flag_parser.c
-SRC += my_printf/flag_utils.c
-SRC += my_printf/convertors/char.c
-SRC += my_printf/convertors/float.c
-SRC += my_printf/convertors/int.c
-SRC += my_printf/convertors/ptr.c
-SRC += my_printf/convertors/str.c
-SRC += my_printf/convertors/unsigned.c
-SRC += my_printf/convertors/len.c
+SRC += io/my_printf/convertors/char.c
+SRC += io/my_printf/convertors/float.c
+SRC += io/my_printf/convertors/int.c
+SRC += io/my_printf/convertors/len.c
+SRC += io/my_printf/convertors/ptr.c
+SRC += io/my_printf/convertors/str.c
+SRC += io/my_printf/convertors/unsigned.c
+SRC += io/my_printf/families/asprintf.c
+SRC += io/my_printf/families/dprintf.c
+SRC += io/my_printf/families/printf.c
+SRC += io/my_printf/families/sprintf.c
+SRC += io/my_printf/flag_parser.c
+SRC += io/my_printf/flag_utils.c
+SRC += io/my_putchar.c
+SRC += io/my_putstr.c
 
 # ↓ Objects
 BUILD_DIR := .build
@@ -100,10 +104,6 @@ $(BUILD_DIR)/%.o: %.c
 $(NAME): $(HEADER) $(OBJ)
 	@ $(ECHO) "[${C_BOLD}${C_YELLOW}AR${C_RESET}] ${C_RED}$@${C_RESET}"
 	@ $(AR) rc $@ $(OBJ) || $(DIE)
-	@ cp $@ ..
-	@ mkdir -p ../../include
-	@ cp my.h ../../include/
-	@ cp colors.h ../../include/
 
 # ↓ Cleaning
 clean:
@@ -111,8 +111,6 @@ clean:
 
 fclean: clean
 	@ $(RM) $(NAME) ../$(NAME)
-	@ $(RM) ../../include/my.h
-	@ $(RM) ../../include/colors.h
 
 .PHONY: clean fclean
 

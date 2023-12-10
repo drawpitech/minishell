@@ -6,14 +6,11 @@
 */
 
 #include <fcntl.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
-#include "../builtins/builtins.h"
-#include "../debug.h"
-#include "execute.h"
+#include "my/std.h"
 
-#include "my.h"
+#include "execute.h"
 
 static
 int redirect_pipe(shell_t *shell, cmd_stack_t const *stack)

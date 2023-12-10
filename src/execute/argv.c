@@ -5,9 +5,9 @@
 ** argv
 */
 
-#include "my.h"
+#include "my/debug.h"
+#include "my/string.h"
 
-#include "../debug.h"
 #include "execute.h"
 
 static

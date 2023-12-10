@@ -5,7 +5,7 @@
 ** my_pow
 */
 
-#include "my.h"
+#include "math.h"
 
 uint32_t my_pow(uint32_t x, uint32_t y)
 {

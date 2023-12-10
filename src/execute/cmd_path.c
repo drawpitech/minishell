@@ -7,10 +7,11 @@
 
 #include <dirent.h>
 
-#include "../debug.h"
-#include "execute.h"
+#include "my/std.h"
+#include "my/debug.h"
+#include "my/string.h"
 
-#include "my.h"
+#include "execute.h"
 
 static
 bool is_file_in_dir(char const *dir, char const *file)
