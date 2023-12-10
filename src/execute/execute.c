@@ -15,6 +15,7 @@
 
 #include "my.h"
 
+static
 int return_value(int wstatus)
 {
     if (WIFEXITED(wstatus))
@@ -32,10 +33,19 @@ int return_value(int wstatus)
     return SH_CODE_SUCCES;
 }
 
-void child_process(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
+static
+void child_process(
+    shell_t *shell,
+    char const *cmd,
+    cmd_stack_t const *stack,
+    int fd[2])
 {
     char **env;
 
+    if (fd != NULL) {
+        close(fd[1]);
+        dup2(fd[0], STDIN_FILENO);
+    }
     cmd_redirect(shell, stack);
     shell->is_running = false;
     env = get_envp(shell);
@@ -43,43 +53,56 @@ void child_process(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
 }
 
 static
-int run_external_cmd(shell_t *shell, char const *cmd, cmd_stack_t const *stack)
+int parent_process(int fd[2])
+{
+    int wstatus = 0;
+
+    if (fd == NULL) {
+        wait(&wstatus);
+    } else {
+        close(fd[0]);
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[1]);
+    }
+    return return_value(wstatus);
+}
+
+static
+int run_external_cmd(
+    shell_t *shell,
+    char const *cmd,
+    cmd_stack_t const *stack,
+    int fd[2])
 {
     pid_t child_pid = fork();
-    int wstatus;
 
     if (child_pid == -1) {
         ret_perror("minishell", NULL);
         return SH_CODE_GENERAL_ERROR;
     }
     if (child_pid == 0) {
-        child_process(shell, cmd, stack);
+        child_process(shell, cmd, stack, fd);
     } else {
-        wait(&wstatus);
-        return return_value(wstatus);
+        return parent_process(fd);
     }
     return SH_CODE_SUCCES;
 }
 
-static
-int run_command(shell_t *shell, cmd_stack_t const *stack)
+int run_command(shell_t *shell, cmd_stack_t const *stack, int fd[2])
 {
     char const *cmd;
-    int ret;
     char **argv = stack->argv;
     builtin_cmd_t *builtin = get_builtin(argv[0]);
 
     if (builtin != NULL) {
         DEBUG("Running builtin %s", argv[0]);
-        ret = builtin(shell, argv);
-        return ret;
+        return builtin(shell, argv);
     }
     cmd = get_cmd(shell, argv[0]);
     if (cmd == NULL)
         return SH_CODE_CMD_NOT_FOUND;
     DEBUG("Running %s", cmd);
-    ret = run_external_cmd(shell, cmd, stack);
-    return ret;
+    return run_external_cmd(shell, cmd, stack, fd);
 }
 
 static
@@ -118,7 +141,7 @@ int execute(shell_t *shell)
     for (cmd_stack_t *ptr = stack; ptr->type != NONE; ptr++) {
         DEBUG("%d", ptr->type);
         if (ptr->type == EXPR)
-            shell->last_exit_code = run_command(shell, ptr);
+            shell->last_exit_code = run_command(shell, ptr, NULL);
         else
             ptr++;
     }

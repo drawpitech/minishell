@@ -22,7 +22,6 @@ cmd_stack_t *create_stack(size_t nbr, token_t tokens[nbr]);
 char **create_argv(token_t *tokens[]);
 void free_stack(cmd_stack_t *stack);
 int cmd_redirect(shell_t *shell, cmd_stack_t const *stack);
-int return_value(int wstatus);
-void child_process(shell_t *shell, char const *cmd, cmd_stack_t const *stack);
+int run_command(shell_t *shell, cmd_stack_t const *stack, int fd[2]);
 
 #endif /* EXECUTE_H_ */

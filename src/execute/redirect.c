@@ -16,51 +16,6 @@
 #include "my.h"
 
 static
-int run_external_cmd(
-    shell_t *shell,
-    char const *cmd,
-    cmd_stack_t const *stack,
-    int fd[2])
-{
-    pid_t child_pid = fork();
-    int wstatus = 0;
-
-    if (child_pid == -1) {
-        ret_perror("minishell", NULL);
-        return SH_CODE_GENERAL_ERROR;
-    }
-    if (child_pid == 0) {
-        close(fd[1]);
-        dup2(fd[0], STDIN_FILENO);
-        child_process(shell, cmd, stack);
-    } else {
-        close(fd[0]);
-        dup2(fd[1], STDOUT_FILENO);
-        close(fd[1]);
-        return return_value(wstatus);
-    }
-    return SH_CODE_SUCCES;
-}
-
-static
-int run_command(shell_t *shell, cmd_stack_t const *stack, int fd[2])
-{
-    char const *cmd;
-    char **argv = stack->argv;
-    builtin_cmd_t *builtin = get_builtin(argv[0]);
-
-    if (builtin != NULL) {
-        DEBUG("Running builtin %s", argv[0]);
-        return builtin(shell, argv);
-    }
-    cmd = get_cmd(shell, argv[0]);
-    if (cmd == NULL)
-        return SH_CODE_CMD_NOT_FOUND;
-    DEBUG("Running %s", cmd);
-    return run_external_cmd(shell, cmd, stack, fd);
-}
-
-static
 int redirect_pipe(shell_t *shell, cmd_stack_t const *stack)
 {
     int fd[2];
