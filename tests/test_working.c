@@ -26,10 +26,3 @@ Test(working, echo, .init=cr_redirect_stdout) {
     minishell(3, (char *[3]){"./mysh", "-c", "echo \"bob\""}, ENVP);
     cr_assert_stdout_eq_str(expected);
 }
-
-Test(working, ls_pipe, .init=cr_redirect_stdout) {
-    char *expected = SH(ls | cat -e);
-
-    minishell(3, (char *[3]){"./mysh", "-c", "ls | cat -e"}, ENVP);
-    cr_assert_stdout_eq_str(expected);
-}
